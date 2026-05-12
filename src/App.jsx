@@ -15,7 +15,8 @@ function App() {
   const [searchData, setSearchData] = useState({
     nit: '',
     year: '2025',
-    type: 'retefuente'
+    type: 'retefuente',
+    period: '1'
   })
   const [isSearching, setIsSearching] = useState(false)
   const [certificate, setCertificate] = useState(null)
@@ -40,12 +41,18 @@ function App() {
 
     try {
       // Real database query
-      const { data, error } = await supabase
+      let query = supabase
         .from('certificates')
         .select('*')
         .eq('nit', searchData.nit)
         .eq('year', searchData.year)
         .eq('type', searchData.type)
+
+      if (searchData.type === 'reteiva') {
+        query = query.eq('period', searchData.period)
+      }
+
+      const { data, error } = await query
 
       if (error || !data || data.length === 0) throw new Error('No se encontró información para los datos ingresados.')
       
@@ -55,6 +62,7 @@ function App() {
         name: data[0].name,
         year: data[0].year,
         type: data[0].type,
+        period: data[0].period || null,
         city: data[0].city || 'Pereira',
         details: data.map(row => ({
           account: row.account || '',
@@ -72,10 +80,14 @@ function App() {
       setTimeout(() => {
         setIsSearching(false)
         
-        // Filter the mock data based on the NIT and Year
-        const filteredMockData = EXCEL_MOCK_DATA.filter(row => 
-          row.nit === searchData.nit && row.year === searchData.year
-        );
+        // Filter the mock data based on the NIT, Year and Period (if ReteIVA)
+        const filteredMockData = EXCEL_MOCK_DATA.filter(row => {
+          const matchBasic = row.nit === searchData.nit && row.year === searchData.year;
+          if (searchData.type === 'reteiva') {
+            return matchBasic && row.period === searchData.period;
+          }
+          return matchBasic;
+        });
 
         if (filteredMockData.length === 0) {
           setError('No se encontró información para los datos ingresados en la base de datos (Prueba).');
@@ -88,6 +100,7 @@ function App() {
           name: filteredMockData[0].name,
           year: filteredMockData[0].year,
           type: searchData.type,
+          period: searchData.type === 'reteiva' ? searchData.period : null,
           city: 'Pereira, Risaralda',
           details: filteredMockData.map(row => ({
             account: row.account || '',
@@ -180,7 +193,7 @@ function App() {
                     />
                   </div>
 
-                  <div style={{ display: 'grid', gridTemplateColumns: '1fr 1fr', gap: '1rem' }}>
+                  <div style={{ display: 'grid', gridTemplateColumns: searchData.type === 'reteiva' ? '1fr 1fr 1fr' : '1fr 1fr', gap: '1rem' }}>
                     <div className="input-group">
                       <label>Año</label>
                       <select 
@@ -188,6 +201,7 @@ function App() {
                         onChange={(e) => setSearchData({...searchData, year: e.target.value})}
                       >
                         <option value="2025">2025</option>
+                        <option value="2026">2026</option>
                       </select>
                     </div>
                     <div className="input-group">
@@ -201,6 +215,22 @@ function App() {
                         <option value="reteica">ReteICA</option>
                       </select>
                     </div>
+                    {searchData.type === 'reteiva' && (
+                      <div className="input-group">
+                        <label>Periodo</label>
+                        <select
+                          value={searchData.period}
+                          onChange={(e) => setSearchData({...searchData, period: e.target.value})}
+                        >
+                          <option value="1">1 (Ene-Feb)</option>
+                          <option value="2">2 (Mar-Abr)</option>
+                          <option value="3">3 (May-Jun)</option>
+                          <option value="4">4 (Jul-Ago)</option>
+                          <option value="5">5 (Sep-Oct)</option>
+                          <option value="6">6 (Nov-Dic)</option>
+                        </select>
+                      </div>
+                    )}
                   </div>
 
                   <button 
@@ -261,7 +291,7 @@ function App() {
                         onClick={downloadPDF}
                       >
                         <Download size={18} />
-                        Descargar PDF (Certificado {certificate.year})
+                        Descargar PDF (Certificado {certificate.year} {certificate.period ? `- Periodo ${certificate.period}` : ''})
                       </button>
                     </motion.div>
                   )}

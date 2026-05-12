@@ -7,10 +7,13 @@ export const AdminPortal = ({ onLogout }) => {
   const [isUploading, setIsUploading] = useState(false);
   const [status, setStatus] = useState(null); // { type: 'success' | 'error', message: '' }
   const [uploadProgress, setUploadProgress] = useState(0);
+  const [config, setConfig] = useState({
+    type: 'retefuente',
+    year: '2025',
+    period: '1'
+  });
 
   const handleLogout = () => {
-    // We need to pass a logout function from App.jsx or use a state management
-    // For now, I'll assume we can pass it as a prop
     if (onLogout) onLogout();
   };
 
@@ -30,9 +33,36 @@ export const AdminPortal = ({ onLogout }) => {
         const ws = wb.Sheets[wsname];
         const data = XLSX.utils.sheet_to_json(ws);
 
+        // Map data to include the selected metadata and handle specific Excel headers
+        const preparedData = data.map(row => {
+          // Helper to clean currency strings like "-$ 457.836,00"
+          const cleanAmount = (val) => {
+            if (typeof val === 'number') return val;
+            if (!val) return 0;
+            // Remove $, whitespace, and dots (thousands separator), then replace comma with dot (decimal)
+            const cleaned = val.toString().replace(/[\$\s\.]/g, '').replace(',', '.');
+            return parseFloat(cleaned) || 0;
+          };
+
+          return {
+            nit: row['TERCERO']?.toString() || '',
+            name: row['NOMBRE TERCERO'] || '',
+            year: row['AÑO GRAVABLE']?.toString() || config.year,
+            type: config.type,
+            period: config.type === 'reteiva' ? config.period : null,
+            account: row['CUENTA']?.toString() || '',
+            concept: row['CONCEPTO'] || '',
+            percentage: row['PORCENTAJE']?.toString() || '',
+            amount_base: cleanAmount(row['BASE']),
+            amount_withheld: cleanAmount(row['VALOR RETENIDO']),
+            city: 'Pereira' // Default city
+          };
+        });
+
+        console.log('Data mapped with specific Excel headers:', preparedData);
+
         // Here we would push to Supabase
-        // Example structure of data: [{ nit: '...', name: '...', amount: ... }]
-        console.log('Data to upload:', data);
+        // const { error } = await supabase.from('certificates').insert(preparedData);
 
         // Simulate chunk upload
         for (let i = 0; i <= 100; i += 20) {
@@ -40,7 +70,7 @@ export const AdminPortal = ({ onLogout }) => {
           await new Promise(r => setTimeout(r, 200));
         }
 
-        setStatus({ type: 'success', message: `${data.length} registros cargados correctamente.` });
+        setStatus({ type: 'success', message: `${data.length} registros de ${config.type.toUpperCase()} (${config.year}) cargados correctamente.` });
         setIsUploading(false);
       };
       reader.readAsBinaryString(file);
@@ -73,6 +103,46 @@ export const AdminPortal = ({ onLogout }) => {
           <LogOut size={16} />
           Cerrar Sesión
         </button>
+      </div>
+
+      <div style={{ display: 'grid', gridTemplateColumns: config.type === 'reteiva' ? '1fr 1fr 1fr' : '1fr 1fr', gap: '1rem', marginBottom: '2rem' }}>
+        <div className="input-group">
+          <label>Tipo de Base</label>
+          <select 
+            value={config.type}
+            onChange={(e) => setConfig({...config, type: e.target.value})}
+          >
+            <option value="retefuente">ReteFuente</option>
+            <option value="reteiva">ReteIVA</option>
+            <option value="reteica">ReteICA</option>
+          </select>
+        </div>
+        <div className="input-group">
+          <label>Año</label>
+          <select 
+            value={config.year}
+            onChange={(e) => setConfig({...config, year: e.target.value})}
+          >
+            <option value="2025">2025</option>
+            <option value="2026">2026</option>
+          </select>
+        </div>
+        {config.type === 'reteiva' && (
+          <div className="input-group">
+            <label>Periodo</label>
+            <select
+              value={config.period}
+              onChange={(e) => setConfig({...config, period: e.target.value})}
+            >
+              <option value="1">1 (Ene-Feb)</option>
+              <option value="2">2 (Mar-Abr)</option>
+              <option value="3">3 (May-Jun)</option>
+              <option value="4">4 (Jul-Ago)</option>
+              <option value="5">5 (Sep-Oct)</option>
+              <option value="6">6 (Nov-Dic)</option>
+            </select>
+          </div>
+        )}
       </div>
       
       <div 
