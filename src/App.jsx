@@ -5,6 +5,7 @@ import { generateCertificatePDF } from './utils/pdfGenerator'
 import { AdminPortal } from './components/AdminPortal'
 import { supabase } from './utils/supabaseClient'
 import { EXCEL_MOCK_DATA } from './utils/mockData'
+import logo from './assets/logo_tym.png'
 
 function App() {
   const [view, setView] = useState('portal') // 'portal' or 'admin'
@@ -119,11 +120,19 @@ function App() {
 
       <nav className="navbar glass">
         <div className="logo" style={{ display: 'flex', alignItems: 'center', gap: '12px' }}>
-          <div style={{ background: 'var(--primary)', padding: '8px', borderRadius: '12px', boxShadow: '0 4px 6px -1px rgba(30, 58, 138, 0.2)' }}>
-            <ShieldCheck size={24} color="white" />
-          </div>
-          <div style={{ display: 'flex', flexDirection: 'column', lineHeight: '1' }}>
-            <span style={{ fontWeight: 800, fontSize: '1.1rem', color: 'var(--primary)' }}>T&M</span>
+          <img 
+            src={logo} 
+            alt="Logo" 
+            style={{ 
+              width: '45px', 
+              height: '45px', 
+              borderRadius: '50%',
+              objectFit: 'cover',
+              boxShadow: '0 4px 6px -1px rgba(0, 0, 0, 0.1)'
+            }} 
+          />
+          <div style={{ display: 'flex', flexDirection: 'column', lineHeight: '1.2' }}>
+            <span style={{ fontWeight: 800, fontSize: '1.1rem', color: 'var(--primary)' }}>TIENDAS & MARCAS</span>
             <span style={{ fontWeight: 500, fontSize: '0.7rem', color: 'var(--text-muted)', letterSpacing: '0.05em' }}>EJE CAFETERO</span>
           </div>
         </div>
@@ -179,9 +188,6 @@ function App() {
                         onChange={(e) => setSearchData({...searchData, year: e.target.value})}
                       >
                         <option value="2025">2025</option>
-                        <option value="2024">2024</option>
-                        <option value="2023">2023</option>
-                        <option value="2022">2022</option>
                       </select>
                     </div>
                     <div className="input-group">
