@@ -3,7 +3,7 @@ import { FileText, ShieldCheck, Download, Search } from 'lucide-react'
 import { motion, AnimatePresence } from 'framer-motion'
 import { generateCertificatePDF } from './utils/pdfGenerator'
 import { AdminPortal } from './components/AdminPortal'
-import { supabase } from './utils/supabaseClient'
+
 import { EXCEL_MOCK_DATA } from './utils/mockData'
 import logo from './assets/logo_tym.png'
 import logoTat from './assets/logo_tat.png'
@@ -66,93 +66,49 @@ function App() {
     }
   }
 
-  const handleSearch = async (e) => {
+  const handleSearch = (e) => {
     e.preventDefault()
     setIsSearching(true)
     setCertificate(null)
     setError(null)
 
-    try {
-      // Real database query
-      let query = supabase
-        .from('certificates')
-        .select('*')
-        .eq('nit', searchData.nit)
-        .eq('year', searchData.year)
-        .eq('type', searchData.type)
+    setTimeout(() => {
+      const filteredData = EXCEL_MOCK_DATA.filter(row => {
+        const matchBasic = row.nit === searchData.nit && row.year === searchData.year;
+        if (searchData.type === 'reteiva' || searchData.type === 'reteica') {
+          return matchBasic && row.period === searchData.period;
+        }
+        return matchBasic;
+      });
 
-      if (searchData.type === 'reteiva' || searchData.type === 'reteica') {
-        query = query.eq('period', searchData.period)
+      setIsSearching(false)
+
+      if (filteredData.length === 0) {
+        setError('No se encontró información para los datos ingresados.');
+        return;
       }
 
-      const { data, error } = await query
-
-      if (error || !data || data.length === 0) throw new Error('No se encontró información para los datos ingresados.')
-      
-      // Grouping data logic if connected to real DB
-      const groupedData = {
-        nit: data[0].nit,
-        name: data[0].name,
-        year: data[0].year,
-        type: data[0].type,
-        period: data[0].period || null,
-        city: data[0].city || 'Pereira',
-        details: data.map(row => ({
+      const grouped = {
+        nit: filteredData[0].nit,
+        name: filteredData[0].name,
+        year: filteredData[0].year,
+        type: searchData.type,
+        period: (searchData.type === 'reteiva' || searchData.type === 'reteica') ? searchData.period : null,
+        city: 'Pereira, Risaralda',
+        companyName: selectedCompany.name,
+        companyNit: selectedCompany.nit,
+        companyAddress: selectedCompany.address,
+        details: filteredData.map(row => ({
           account: row.account || '',
           concept: row.concept || '',
-          percentage: row.percentage ? `${row.percentage}%` : '',
-          baseAmount: row.amount_base || 0,
-          retainedAmount: row.amount_withheld || 0
+          percentage: row.percentage ? row.percentage.toString() : '',
+          baseAmount: row.base || 0,
+          retainedAmount: row.retained || 0
         }))
       }
-      
-      setCertificate(groupedData)
-    } catch (err) {
-      // Mocking for demonstration if Supabase is not configured yet
-      console.log('Falling back to mock data for demo...')
-      setTimeout(() => {
-        setIsSearching(false)
-        
-        // Filter the mock data based on the NIT, Year and Period (if ReteIVA)
-        const filteredMockData = EXCEL_MOCK_DATA.filter(row => {
-          const matchBasic = row.nit === searchData.nit && row.year === searchData.year;
-          if (searchData.type === 'reteiva' || searchData.type === 'reteica') {
-            return matchBasic && row.period === searchData.period;
-          }
-          return matchBasic;
-        });
 
-        if (filteredMockData.length === 0) {
-          setError('No se encontró información para los datos ingresados en la base de datos (Prueba).');
-          return;
-        }
-
-        // Group the filtered mock data
-        const groupedMockData = {
-          nit: filteredMockData[0].nit,
-          name: filteredMockData[0].name,
-          year: filteredMockData[0].year,
-          type: searchData.type,
-          period: (searchData.type === 'reteiva' || searchData.type === 'reteica') ? searchData.period : null,
-          city: 'Pereira, Risaralda',
-          companyName: selectedCompany.name,
-          companyNit: selectedCompany.nit,
-          companyAddress: selectedCompany.address,
-          details: filteredMockData.map(row => ({
-            account: row.account || '',
-            concept: row.concept || '',
-            percentage: row.percentage ? row.percentage.toString() : '',
-            baseAmount: row.base || 0,
-            retainedAmount: row.retained || 0
-          }))
-        }
-
-        setCertificate(groupedMockData)
-      }, 1000)
-    } finally {
-      // If we used real data, we'd set isSearching to false here
-      // But since we are mocking the delay above, we leave it for now
-    }
+      setCertificate(grouped)
+    }, 600)
   }
 
   const downloadPDF = () => {
