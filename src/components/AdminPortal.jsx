@@ -1,7 +1,7 @@
 import React, { useState } from 'react';
 import { Upload, CheckCircle, AlertCircle, FileSpreadsheet, LogOut } from 'lucide-react';
 import * as XLSX from 'xlsx';
-import { supabase } from '../utils/supabaseClient';
+
 
 export const AdminPortal = ({ onLogout }) => {
   const [isUploading, setIsUploading] = useState(false);
