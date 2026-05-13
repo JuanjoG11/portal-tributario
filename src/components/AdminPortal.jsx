@@ -49,7 +49,7 @@ export const AdminPortal = ({ onLogout }) => {
             name: row['NOMBRE TERCERO'] || '',
             year: row['AÑO GRAVABLE']?.toString() || config.year,
             type: config.type,
-            period: config.type === 'reteiva' ? config.period : null,
+            period: (config.type === 'reteiva' || config.type === 'reteica') ? config.period : null,
             account: row['CUENTA']?.toString() || '',
             concept: row['CONCEPTO'] || '',
             percentage: row['PORCENTAJE']?.toString() || '',
@@ -105,7 +105,7 @@ export const AdminPortal = ({ onLogout }) => {
         </button>
       </div>
 
-      <div style={{ display: 'grid', gridTemplateColumns: config.type === 'reteiva' ? '1fr 1fr 1fr' : '1fr 1fr', gap: '1rem', marginBottom: '2rem' }}>
+      <div style={{ display: 'grid', gridTemplateColumns: (config.type === 'reteiva' || config.type === 'reteica') ? '1fr 1fr 1fr' : '1fr 1fr', gap: '1rem', marginBottom: '2rem' }}>
         <div className="input-group">
           <label>Tipo de Base</label>
           <select 
@@ -127,7 +127,7 @@ export const AdminPortal = ({ onLogout }) => {
             <option value="2026">2026</option>
           </select>
         </div>
-        {config.type === 'reteiva' && (
+        {(config.type === 'reteiva' || config.type === 'reteica') && (
           <div className="input-group">
             <label>Periodo</label>
             <select
