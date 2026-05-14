@@ -139,15 +139,18 @@ function App() {
         companyNit: selectedCompany.nit,
         companyAddress: selectedCompany.address,
         companyLogo: selectedCompany.logo,
-        // Freight specific fields
-        placa: filteredData[0].placa,
+        // Freight specific fields - Supporting multiple plates
+        fleteDetails: filteredData.map(row => ({
+          placa: row.placa,
+          valorGenerado: row.totalFlete
+        })),
         periodRange: filteredData[0].periodRange,
-        totalFlete: filteredData[0].totalFlete,
-        retefuente: filteredData[0].retefuente,
-        reteica: filteredData[0].reteica,
-        adicionales: filteredData[0].adicionales,
-        seguridadSocial: filteredData[0].seguridadSocial,
-        totalPagado: filteredData[0].totalPagado,
+        totalFlete: filteredData.reduce((sum, row) => sum + (parseFloat(row.totalFlete) || 0), 0),
+        retefuente: filteredData.reduce((sum, row) => sum + (parseFloat(row.retefuente) || 0), 0),
+        reteica: filteredData.reduce((sum, row) => sum + (parseFloat(row.reteica) || 0), 0),
+        adicionales: filteredData.reduce((sum, row) => sum + (parseFloat(row.adicionales) || 0), 0),
+        seguridadSocial: filteredData.reduce((sum, row) => sum + (parseFloat(row.seguridadSocial) || 0), 0),
+        totalPagado: filteredData.reduce((sum, row) => sum + (parseFloat(row.totalPagado) || 0), 0),
         details: filteredData.map(row => ({
           account: row.account || '',
           concept: row.concept || '',
@@ -453,7 +456,7 @@ function App() {
                             <option value="retefuente">ReteFuente</option>
                             <option value="reteiva">ReteIVA</option>
                             <option value="reteica">ReteICA</option>
-                            {selectedCompany.id === 'TAT' && <option value="fletes">Relación Pago Fletes</option>}
+                            <option value="fletes">Relación Pago Fletes</option>
                           </select>
                         </div>
                         {(searchData.type === 'reteiva' || searchData.type === 'reteica') && (

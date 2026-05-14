@@ -26,7 +26,7 @@ export const generateCertificatePDF = (certificateData) => {
 
     // --- BOX 1: Header ---
     doc.roundedRect(10, 10, 190, 20, 2, 2);
-    const currentLogo = logoTatBase64;
+    const currentLogo = companyId === 'TAT' ? logoTatBase64 : logoBase64;
     if (currentLogo) {
       try { doc.addImage(currentLogo, 'PNG', 15, 11, 18, 18); } catch (e) {}
     }
@@ -47,7 +47,7 @@ export const generateCertificatePDF = (certificateData) => {
 
     doc.text(companyName.toUpperCase(), 45, 38);
     doc.setFont('helvetica', 'normal');
-    doc.text(companyNit || '901.568.117-1', 45, 42);
+    doc.text(companyNit || (companyId === 'TAT' ? '901.568.117-1' : '900.973.932-9'), 45, 42);
     doc.text(companyAddress || '', 45, 46);
 
     // --- BOX 3: Conductor / Propietario ---
@@ -58,7 +58,8 @@ export const generateCertificatePDF = (certificateData) => {
     
     doc.text(String(name).toUpperCase(), 45, 58);
     doc.setFont('helvetica', 'normal');
-    doc.text(`${nit}    -    PLACA: ${placa || 'N/A'}`, 45, 62);
+    const platesList = certificateData.fleteDetails.map(f => f.placa).join(', ');
+    doc.text(`${nit}    -    PLACA(S): ${platesList}`, 45, 62);
 
     // --- BOX 4: Data Table ---
     const tableStartY = 66;
@@ -68,7 +69,7 @@ export const generateCertificatePDF = (certificateData) => {
     // Table Headers
     doc.setFont('helvetica', 'bold');
     doc.setFontSize(8);
-    doc.text('CONCEPTO DE LIQUIDACIÓN', 15, 71);
+    doc.text('CONCEPTO DE LIQUIDACIÓN / PLACA', 15, 71);
     doc.text('VALOR', 180, 71, { align: 'right' });
     doc.line(10, 73, 200, 73);
 
@@ -77,8 +78,15 @@ export const generateCertificatePDF = (certificateData) => {
     doc.setFont('helvetica', 'normal');
     doc.setFontSize(9);
     
+    // List each plate's value
+    certificateData.fleteDetails.forEach(f => {
+      doc.text(`Valor Total Generado - Placa: ${f.placa}`, 15, currentY);
+      doc.text(`$ ${formatCurrency(f.valorGenerado)}`, 180, currentY, { align: 'right' });
+      currentY += 6;
+    });
+
+    // Consolidated Deductions
     const items = [
-      { label: 'Valor Total Generado', value: totalFlete },
       { label: '(-) Retención en la Fuente (1%)', value: retefuente },
       { label: '(-) Retención ICA', value: reteica },
       { label: '(-) Descuentos Adicionales', value: adicionales || 0 },
@@ -86,9 +94,11 @@ export const generateCertificatePDF = (certificateData) => {
     ];
 
     items.forEach(item => {
-      doc.text(item.label, 15, currentY);
-      doc.text(`$ ${formatCurrency(item.value)}`, 180, currentY, { align: 'right' });
-      currentY += 6;
+      if (item.value > 0) {
+        doc.text(item.label, 15, currentY);
+        doc.text(`$ ${formatCurrency(item.value)}`, 180, currentY, { align: 'right' });
+        currentY += 6;
+      }
     });
 
     // Total Row
@@ -99,12 +109,13 @@ export const generateCertificatePDF = (certificateData) => {
 
     // --- BOX 5: Footer Text / Observation ---
     const footerTextY = tableStartY + tableHeight + 2;
-    doc.roundedRect(10, footerTextY, 190, 12, 2, 2);
+    doc.roundedRect(10, footerTextY, 190, 14, 2, 2);
     doc.setFontSize(8);
     doc.setFont('helvetica', 'normal');
-    doc.text('Este documento es una relación detallada de los fletes y descuentos aplicados para el periodo mencionado.', 13, footerTextY + 5);
+    doc.text('Este documento es de caracter informativo bajo la figura de contrato de prestacion de servicios.', 13, footerTextY + 5);
     doc.setFont('helvetica', 'bold');
-    doc.text('OBSERVACIÓN: Cualquier novedad con el valor de los fletes comunicarse con el jefe logístico.', 13, footerTextY + 9);
+    doc.setFontSize(10);
+    doc.text('OBSERVACIÓN: Cualquier novedad con el valor de los fletes comunicarse con el jefe logístico.', 13, footerTextY + 10);
 
     // --- Signature ---
     const signY = footerTextY + 20;
@@ -112,13 +123,13 @@ export const generateCertificatePDF = (certificateData) => {
     doc.setFont('helvetica', 'bold');
     doc.text('FIRMA AUTORIZADA', 46, signY + 12, { align: 'center' });
     doc.setFontSize(7);
-    doc.text('T.A.T. DISTRIBUCIONES', 46, signY + 15, { align: 'center' });
+    doc.text(companyId === 'TAT' ? 'T.A.T. DISTRIBUCIONES' : 'TIENDAS & MARCAS DEL EJE CAFETERO', 46, signY + 15, { align: 'center' });
 
     // Watermark & Date
     doc.setFontSize(7);
     doc.setTextColor(100);
     doc.text(`Fecha de expedición: ${new Date().toLocaleString('es-CO')}`, 198, signY + 12, { align: 'right' });
-    doc.text('Generado por el Portal Tributario TAT', 198, signY + 25, { align: 'right' });
+    doc.text(`Generado por el Portal Tributario ${companyId}`, 198, signY + 25, { align: 'right' });
 
     doc.save(`Relacion_Fletes_${nit}_2026.pdf`);
     return;
