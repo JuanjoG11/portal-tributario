@@ -104,12 +104,14 @@ function App() {
         const matchType = rowType === searchData.type;
         const matchCompany = rowCompany === selectedCompany.id;
         
-        // 4. Period matching (only for periodic taxes like IVA/ICA)
+        // 4. Period matching
         let matchPeriod = true;
-        if (searchData.type === 'reteiva' || searchData.type === 'reteica') {
+        if (searchData.type === 'fletes') {
+          // Freight doesn't use numeric periods yet, just check year and NIT
+          matchPeriod = true;
+        } else if (searchData.type === 'reteiva' || searchData.type === 'reteica') {
           matchPeriod = String(row.period) === String(searchData.period);
         } else {
-          // If searching for Retefuente, ignore rows that have a period (usually ICA/IVA)
           matchPeriod = !row.period;
         }
 
@@ -131,12 +133,21 @@ function App() {
         year: filteredData[0].year,
         type: searchData.type,
         period: (searchData.type === 'reteiva' || searchData.type === 'reteica') ? searchData.period : null,
-        date: filteredData[0].date, // Capturar la fecha específica de emisión
+        date: filteredData[0].date,
         city: 'Pereira, Risaralda',
         companyName: selectedCompany.name,
         companyNit: selectedCompany.nit,
         companyAddress: selectedCompany.address,
         companyLogo: selectedCompany.logo,
+        // Freight specific fields
+        placa: filteredData[0].placa,
+        periodRange: filteredData[0].periodRange,
+        totalFlete: filteredData[0].totalFlete,
+        retefuente: filteredData[0].retefuente,
+        reteica: filteredData[0].reteica,
+        adicionales: filteredData[0].adicionales,
+        seguridadSocial: filteredData[0].seguridadSocial,
+        totalPagado: filteredData[0].totalPagado,
         details: filteredData.map(row => ({
           account: row.account || '',
           concept: row.concept || '',
@@ -442,6 +453,7 @@ function App() {
                             <option value="retefuente">ReteFuente</option>
                             <option value="reteiva">ReteIVA</option>
                             <option value="reteica">ReteICA</option>
+                            {selectedCompany.id === 'TAT' && <option value="fletes">Relación Pago Fletes</option>}
                           </select>
                         </div>
                         {(searchData.type === 'reteiva' || searchData.type === 'reteica') && (
@@ -520,7 +532,7 @@ function App() {
                             onClick={downloadPDF}
                           >
                             <Download size={18} />
-                            Descargar PDF (Certificado {certificate.year} {certificate.period ? `- Periodo ${certificate.period}` : ''})
+                            Descargar PDF ({certificate.type === 'fletes' ? 'Relación de Pago' : `Certificado ${certificate.year}${certificate.period ? ` - Periodo ${certificate.period}` : ''}`})
                           </button>
                         </motion.div>
                       )}
