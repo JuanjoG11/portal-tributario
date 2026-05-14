@@ -1,11 +1,12 @@
 import { jsPDF } from 'jspdf';
 import { logoBase64 } from './logoBase64';
+import { logoTatBase64 } from './logoTatBase64';
 
 export const generateCertificatePDF = (certificateData) => {
   const doc = new jsPDF({ orientation: 'portrait', unit: 'mm', format: 'a4' });
   const { 
     name, nit, year, type, details, period,
-    companyName, companyNit, companyAddress 
+    companyName, companyNit, companyAddress, companyId
   } = certificateData;
 
   const formatCurrency = (val) => {
@@ -39,9 +40,11 @@ export const generateCertificatePDF = (certificateData) => {
   // --- BOX 1: Header ---
   doc.roundedRect(10, 10, 190, 20, 2, 2);
   
-  if (logoBase64 && logoBase64.trim() !== '') {
+  const currentLogo = companyId === 'TAT' ? logoTatBase64 : logoBase64;
+  
+  if (currentLogo && currentLogo.trim() !== '') {
     try {
-      doc.addImage(logoBase64, 'PNG', 15, 11, 18, 18);
+      doc.addImage(currentLogo, 'PNG', 15, 11, 18, 18);
     } catch (e) {
       doc.setFont('helvetica', 'bold');
       doc.setFontSize(8);
@@ -125,9 +128,14 @@ export const generateCertificatePDF = (certificateData) => {
   doc.roundedRect(10, cityY, 190, 8, 2, 2);
   doc.setFont('helvetica', 'normal');
   doc.setFontSize(8);
-  const cityText = type.toUpperCase() === 'RETEICA'
-    ? 'Valor que fue consignado en la Unidad de Rentas del municipio de: PEREIRA - RISARALDA'
-    : 'Ciudad donde se consignó :  PEREIRA - RISARALDA';
+  
+  let cityText = 'Ciudad donde se consignó :  PEREIRA - RISARALDA';
+  if (type.toUpperCase() === 'RETEICA') {
+    cityText = 'Valor que fue consignado en la Unidad de Rentas del municipio de: PEREIRA - RISARALDA';
+  } else if (companyId === 'TAT') {
+    cityText = 'Ciudad donde se consignó :  Administración de Impuestos Nacionales de PEREIRA - RISARALDA';
+  }
+  
   doc.text(cityText, 13, cityY + 5);
 
   // --- BOX 6: Legal Text ---

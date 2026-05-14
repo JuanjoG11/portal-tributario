@@ -42,11 +42,11 @@ function App() {
     },
     TAT: {
       id: 'TAT',
-      name: 'TAT DISTRIBUCIONES S.A.S',
+      name: 'T.A.T. DISTRIBUCIONES DEL EJE CAFETERO S.A.S.',
       displayName: 'TAT',
-      logo: logoTat, // Official logo
-      nit: '---',
-      address: '---'
+      logo: logoTat,
+      nit: '901568117-1',
+      address: 'CR 16 CALLE 77 BODEGA 3 LA ROMELIA LOTE PARQ.'
     }
   }
 
@@ -72,15 +72,51 @@ function App() {
     setCertificate(null)
     setError(null)
 
+    // Sanitize search NIT (remove dots, dashes, spaces)
+    const cleanSearchNit = searchData.nit.replace(/[\.\-\s]/g, '');
+
     setTimeout(() => {
+      console.log('--- DEBUG BÚSQUEDA ---');
+      console.log('NIT buscado:', cleanSearchNit);
+      console.log('Año buscado:', searchData.year);
+      console.log('Tipo buscado:', searchData.type);
+      console.log('Empresa seleccionada:', selectedCompany.id);
+
       const filteredData = EXCEL_MOCK_DATA.filter(row => {
-        const matchBasic = row.nit === searchData.nit && row.year === searchData.year;
-        if (searchData.type === 'reteiva' || searchData.type === 'reteica') {
-          return matchBasic && row.period === searchData.period;
+        // 1. Determine real tax type from 'type' field or account number
+        let rowType = row.type;
+        if (!rowType) {
+          const acc = String(row.account || '');
+          if (acc.startsWith('2365')) rowType = 'retefuente';
+          else if (acc.startsWith('2367')) rowType = 'reteiva';
+          else if (acc.startsWith('2368')) rowType = 'reteica';
+          else rowType = 'retefuente'; // Default for untagged legacy data
         }
-        return matchBasic;
+
+        // 2. Sanitize and prepare data for comparison
+        const rowNit = String(row.nit).replace(/[\.\-\s]/g, '');
+        const rowYear = String(row.year);
+        const rowCompany = row.company || 'TYM'; // Default untagged data to TYM
+        
+        // 3. Core matching
+        const matchNit = rowNit === cleanSearchNit;
+        const matchYear = rowYear === String(searchData.year);
+        const matchType = rowType === searchData.type;
+        const matchCompany = rowCompany === selectedCompany.id;
+        
+        // 4. Period matching (only for periodic taxes like IVA/ICA)
+        let matchPeriod = true;
+        if (searchData.type === 'reteiva' || searchData.type === 'reteica') {
+          matchPeriod = String(row.period) === String(searchData.period);
+        } else {
+          // If searching for Retefuente, ignore rows that have a period (usually ICA/IVA)
+          matchPeriod = !row.period;
+        }
+
+        return matchNit && matchYear && matchType && matchCompany && matchPeriod;
       });
 
+      console.log('Resultados encontrados:', filteredData.length);
       setIsSearching(false)
 
       if (filteredData.length === 0) {
@@ -89,6 +125,7 @@ function App() {
       }
 
       const grouped = {
+        companyId: selectedCompany.id,
         nit: filteredData[0].nit,
         name: filteredData[0].name,
         year: filteredData[0].year,
@@ -98,6 +135,7 @@ function App() {
         companyName: selectedCompany.name,
         companyNit: selectedCompany.nit,
         companyAddress: selectedCompany.address,
+        companyLogo: selectedCompany.logo,
         details: filteredData.map(row => ({
           account: row.account || '',
           concept: row.concept || '',
