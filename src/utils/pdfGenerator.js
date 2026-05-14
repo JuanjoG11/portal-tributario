@@ -57,7 +57,7 @@ export const generateCertificatePDF = (certificateData) => {
   doc.setFontSize(14);
   const typeTitle = type.toUpperCase() === 'RETEIVA' ? 'RETENCION EN EL IVA' : 
                    type.toUpperCase() === 'RETEFUENTE' ? 'RETENCION EN LA FUENTE' : 
-                   type.toUpperCase() === 'RETEICA' ? 'RETENCION EN EL ICA' : type.toUpperCase();
+                   type.toUpperCase() === 'RETEICA' ? 'RETEICA' : type.toUpperCase();
   doc.text(`CERTIFICADO DE ${typeTitle}`, 110, 18, { align: 'center' });
   
   doc.setFontSize(9);
@@ -131,7 +131,8 @@ export const generateCertificatePDF = (certificateData) => {
   
   let cityText = 'Ciudad donde se consignó :  PEREIRA - RISARALDA';
   if (type.toUpperCase() === 'RETEICA') {
-    cityText = 'Valor que fue consignado en la Unidad de Rentas del municipio de: PEREIRA - RISARALDA';
+    const cityName = companyId === 'TAT' ? 'DOSQUEBRADAS - RISARALDA' : 'PEREIRA - RISARALDA';
+    cityText = `Valor que fue consignado en la Unidad de Rentas del municipio de: ${cityName}`;
   } else if (companyId === 'TAT') {
     cityText = 'Ciudad donde se consignó :  Administración de Impuestos Nacionales de DOSQUEBRADAS - RISARALDA';
   }
