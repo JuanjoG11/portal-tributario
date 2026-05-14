@@ -6,11 +6,11 @@ export const generateCertificatePDF = (certificateData) => {
   const doc = new jsPDF({ orientation: 'portrait', unit: 'mm', format: 'a4' });
   const { 
     name, nit, year, type, details, period,
-    companyName, companyNit, companyAddress, companyId
+    companyName, companyNit, companyAddress, companyId, date
   } = certificateData;
 
   const formatCurrency = (val) => {
-    const num = parseFloat(val);
+    const num = Math.abs(parseFloat(val));
     if (isNaN(num)) return '0';
     return new Intl.NumberFormat('es-CO', { 
       minimumFractionDigits: 0,
@@ -133,7 +133,7 @@ export const generateCertificatePDF = (certificateData) => {
   if (type.toUpperCase() === 'RETEICA') {
     cityText = 'Valor que fue consignado en la Unidad de Rentas del municipio de: PEREIRA - RISARALDA';
   } else if (companyId === 'TAT') {
-    cityText = 'Ciudad donde se consignó :  Administración de Impuestos Nacionales de PEREIRA - RISARALDA';
+    cityText = 'Ciudad donde se consignó :  Administración de Impuestos Nacionales de DOSQUEBRADAS - RISARALDA';
   }
   
   doc.text(cityText, 13, cityY + 5);
@@ -156,10 +156,12 @@ export const generateCertificatePDF = (certificateData) => {
   // Current Date/Time
   const now = new Date();
   const isRetefuente = type.toUpperCase() === 'RETEFUENTE';
-  const dateStr = isRetefuente ? '30/03/2026' : now.toLocaleDateString('es-CO');
-  const timeStr = isRetefuente ? '' : ` - ${now.toLocaleTimeString('es-CO', { hour: '2-digit', minute: '2-digit', second: '2-digit', hour12: true })}`;
   
-  const label = isRetefuente ? 'Fecha de expedición' : 'Fecha y hora de expedición';
+  // Usar la fecha del registro si existe, de lo contrario usar la lógica anterior
+  const dateStr = date || (isRetefuente ? '30/03/2026' : now.toLocaleDateString('es-CO'));
+  const timeStr = (date || isRetefuente) ? '' : ` - ${now.toLocaleTimeString('es-CO', { hour: '2-digit', minute: '2-digit', second: '2-digit', hour12: true })}`;
+  
+  const label = (date || isRetefuente) ? 'Fecha de expedición' : 'Fecha y hora de expedición';
   
   doc.setFont('helvetica', 'normal');
   doc.setFontSize(8);

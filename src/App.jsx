@@ -131,6 +131,7 @@ function App() {
         year: filteredData[0].year,
         type: searchData.type,
         period: (searchData.type === 'reteiva' || searchData.type === 'reteica') ? searchData.period : null,
+        date: filteredData[0].date, // Capturar la fecha específica de emisión
         city: 'Pereira, Risaralda',
         companyName: selectedCompany.name,
         companyNit: selectedCompany.nit,
