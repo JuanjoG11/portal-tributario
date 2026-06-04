@@ -5,6 +5,7 @@ import { generateCertificatePDF } from './utils/pdfGenerator'
 import { AdminPortal } from './components/AdminPortal'
 
 import { EXCEL_MOCK_DATA } from './utils/mockData'
+import { TAT_FLETES_MAY_1_15_2026 } from './utils/tatFletesMay2026'
 import logo from './assets/logo_tym.png'
 import logoTat from './assets/logo_tat.png'
 import heroSelection from './assets/hero_selection.jpg'
@@ -19,7 +20,9 @@ function App() {
     nit: '',
     year: '2025',
     type: 'retefuente',
-    period: '1'
+    period: '1',
+    month: String(new Date().getMonth() + 1),
+    quincena: '1'
   })
   const [isSearching, setIsSearching] = useState(false)
   const [certificate, setCertificate] = useState(null)
@@ -72,8 +75,8 @@ function App() {
     setCertificate(null)
     setError(null)
 
-    // Sanitize search NIT (remove dots, dashes, spaces)
-    const cleanSearchNit = searchData.nit.replace(/[\.\-\s]/g, '');
+    // Sanitize search input: remove non-alphanum and uppercase for robust matching
+    const cleanSearchNit = String(searchData.nit).replace(/[^0-9A-Za-z]/g, '').toUpperCase();
 
     setTimeout(() => {
       console.log('--- DEBUG BÚSQUEDA ---');
@@ -82,7 +85,10 @@ function App() {
       console.log('Tipo buscado:', searchData.type);
       console.log('Empresa seleccionada:', selectedCompany.id);
 
-      const filteredData = EXCEL_MOCK_DATA.filter(row => {
+      const persisted = JSON.parse(localStorage.getItem('uploaded_data') || '[]');
+      const allData = EXCEL_MOCK_DATA.concat(TAT_FLETES_MAY_1_15_2026).concat(persisted);
+
+      const filteredData = allData.filter(row => {
         // 1. Determine real tax type from 'type' field or account number
         let rowType = row.type;
         if (!rowType) {
@@ -94,12 +100,19 @@ function App() {
         }
 
         // 2. Sanitize and prepare data for comparison
-        const rowNit = String(row.nit).replace(/[\.\-\s]/g, '');
+        const rowNit = String(row.nit).replace(/[^0-9A-Za-z]/g, '').toUpperCase();
         const rowYear = String(row.year);
         const rowCompany = row.company || 'TYM'; // Default untagged data to TYM
         
         // 3. Core matching
-        const matchNit = rowNit === cleanSearchNit;
+        // For fletes allow searching by nit, ID or placa (some uploads use ID or plate as identifier)
+        let matchNit = rowNit === cleanSearchNit;
+        if (searchData.type === 'fletes') {
+          const rowPlaca = String(row.placa || row.account || '').replace(/[^0-9A-Za-z]/g, '').toUpperCase();
+          const rowId = String(row.ID || row.Id || row.nit || '').replace(/[^0-9A-Za-z]/g, '').toUpperCase();
+          const rowName = String(row.name || '').replace(/[^0-9A-Za-z]/g, '').toUpperCase();
+          matchNit = (rowNit === cleanSearchNit) || (rowPlaca === cleanSearchNit) || (rowId === cleanSearchNit) || (rowName === cleanSearchNit);
+        }
         const matchYear = rowYear === String(searchData.year);
         const matchType = rowType === searchData.type;
         const matchCompany = rowCompany === selectedCompany.id;
@@ -107,8 +120,9 @@ function App() {
         // 4. Period matching
         let matchPeriod = true;
         if (searchData.type === 'fletes') {
-          // Freight doesn't use numeric periods yet, just check year and NIT
-          matchPeriod = true;
+          const matchMonth = String(row.month) === String(searchData.month);
+          const matchQuincena = String(row.quincena) === String(searchData.quincena);
+          matchPeriod = matchMonth && matchQuincena;
         } else if (searchData.type === 'reteiva' || searchData.type === 'reteica') {
           matchPeriod = String(row.period) === String(searchData.period);
         } else {
@@ -405,6 +419,13 @@ function App() {
               >
                 Certificados
               </button>
+              <button 
+                className="btn btn-ghost"
+                style={{ fontSize: '0.85rem', padding: '0.5rem 1rem' }}
+                onClick={() => setView('admin')}
+              >
+                Admin
+              </button>
             </div>
           </nav>
 
@@ -426,7 +447,7 @@ function App() {
 
                     <form onSubmit={handleSearch}>
                       <div className="input-group">
-                        <label>NIT (Sin dígito de verificación)</label>
+                        <label>{searchData.type === 'fletes' ? 'Cédula del propietario' : 'NIT (Sin dígito de verificación)'}</label>
                         <input 
                           type="text" 
                           placeholder="Ej: 900123456" 
@@ -436,7 +457,7 @@ function App() {
                         />
                       </div>
 
-                      <div style={{ display: 'grid', gridTemplateColumns: (searchData.type === 'reteiva' || searchData.type === 'reteica') ? '1fr 1fr 1fr' : '1fr 1fr', gap: '1rem' }}>
+                      <div style={{ display: 'grid', gridTemplateColumns: (searchData.type === 'reteiva' || searchData.type === 'reteica' || searchData.type === 'fletes') ? '1fr 1fr 1fr' : '1fr 1fr', gap: '1rem' }}>
                         <div className="input-group">
                           <label>Año</label>
                           <select 
@@ -472,6 +493,40 @@ function App() {
                               <option value="4">4 (Jul-Ago)</option>
                               <option value="5">5 (Sep-Oct)</option>
                               <option value="6">6 (Nov-Dic)</option>
+                            </select>
+                          </div>
+                        )}
+                        {searchData.type === 'fletes' && (
+                          <div className="input-group">
+                            <label>Mes</label>
+                            <select
+                              value={searchData.month}
+                              onChange={(e) => setSearchData({...searchData, month: e.target.value})}
+                            >
+                              <option value="1">Enero</option>
+                              <option value="2">Febrero</option>
+                              <option value="3">Marzo</option>
+                              <option value="4">Abril</option>
+                              <option value="5">Mayo</option>
+                              <option value="6">Junio</option>
+                              <option value="7">Julio</option>
+                              <option value="8">Agosto</option>
+                              <option value="9">Septiembre</option>
+                              <option value="10">Octubre</option>
+                              <option value="11">Noviembre</option>
+                              <option value="12">Diciembre</option>
+                            </select>
+                          </div>
+                        )}
+                        {searchData.type === 'fletes' && (
+                          <div className="input-group">
+                            <label>Quincena</label>
+                            <select
+                              value={searchData.quincena}
+                              onChange={(e) => setSearchData({...searchData, quincena: e.target.value})}
+                            >
+                              <option value="1">1ra quincena (1-15)</option>
+                              <option value="2">2da quincena (16-31)</option>
                             </select>
                           </div>
                         )}

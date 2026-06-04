@@ -1,16 +1,24 @@
 import React, { useState } from 'react';
+
+
 import { Upload, CheckCircle, AlertCircle, FileSpreadsheet, LogOut } from 'lucide-react';
 import * as XLSX from 'xlsx';
 
 
 export const AdminPortal = ({ onLogout }) => {
   const [isUploading, setIsUploading] = useState(false);
-  const [status, setStatus] = useState(null); // { type: 'success' | 'error', message: '' }
+  const [status, setStatus] = useState(null);
   const [uploadProgress, setUploadProgress] = useState(0);
+  const [fleteConfig, setFleteConfig] = useState({
+    type: 'fletes',
+    year: new Date().getFullYear().toString(),
+  });
+  const [company, setCompany] = useState('TYM');
   const [config, setConfig] = useState({
     type: 'retefuente',
-    year: '2025',
-    period: '1'
+    year: new Date().getFullYear().toString(),
+    period: '1',
+    month: String(new Date().getMonth() + 1),
   });
 
   const handleLogout = () => {
@@ -35,6 +43,9 @@ export const AdminPortal = ({ onLogout }) => {
 
         // Map data to include the selected metadata and handle specific Excel headers
         const preparedData = data.map(row => {
+          // Use current config for type and year
+          const type = config.type;
+          const year = config.year;
           // Helper to clean currency strings like "-$ 457.836,00"
           const cleanAmount = (val) => {
             if (typeof val === 'number') return val;
@@ -44,33 +55,72 @@ export const AdminPortal = ({ onLogout }) => {
             return parseFloat(cleaned) || 0;
           };
 
+          // Common headers for fletes/relacion pagos
+          const placa = row['PLACA'] || row['PLACAS'] || row['PLACA(S)'] || row['placa'] || row['placas'] || '';
+          const valor = row['VALOR'] || row['VALOR_FLETE'] || row['TOTAL_FLETE'] || row['TOTAL FLETE'] || row['TOTAL'] || row['valor'] || row['total'] || '';
+          const mes = row['MES'] || row['Mes'] || row['mes'] || config.month || '1';
+          const quincena = row['QUINCENA'] || row['QUINCENA'] || row['quincena'] || config.period || '1';
+
           return {
-            nit: row['TERCERO']?.toString() || '',
-            name: row['NOMBRE TERCERO'] || '',
-            year: row['AÑO GRAVABLE']?.toString() || config.year,
-            type: config.type,
-            period: (config.type === 'reteiva' || config.type === 'reteica') ? config.period : null,
+            nit: row['TERCERO']?.toString() || row['NIT']?.toString() || row['Cedula']?.toString() || row['ID']?.toString() || row['Id']?.toString() || '',
+            name: row['NOMBRE TERCERO'] || row['NOMBRE'] || row['NOMBRE_COMPLETO'] || row['NOMBRE PARA PAGAR CXP (DUEÑO VEHÍCULO)'] || '',
+            year: row['AÑO GRAVABLE']?.toString() || row['YEAR']?.toString() || year,
+            type: type,
+            period: quincena,
             account: row['CUENTA']?.toString() || '',
             concept: row['CONCEPTO'] || '',
             percentage: row['PORCENTAJE']?.toString() || '',
-            amount_base: cleanAmount(row['BASE']),
-            amount_withheld: cleanAmount(row['VALOR RETENIDO']),
+            amount_base: cleanAmount(row['BASE']) || 0,
+            amount_withheld: cleanAmount(row['VALOR RETENIDO']) || 0,
+            placa: placa,
+            month: mes,
+            quincena: quincena,
+            totalFlete: cleanAmount(valor) || 0,
             city: 'Pereira' // Default city
           };
         });
+
+        // Persist uploaded records in localStorage so Portal can read them
+        try {
+          const existing = JSON.parse(localStorage.getItem('uploaded_data') || '[]');
+          const normalized = preparedData.map(d => ({
+            ...d,
+            company: company || 'TYM',
+            month: d.month || config.month || '1',
+            quincena: d.period || d.quincena || config.period || '1',
+            placa: d.placa || d.account || '',
+            totalFlete: d.totalFlete || d.totalFlete === 0 ? d.totalFlete : (d.amount_base || d.amount_withheld || 0),
+            totalPagado: d.totalPagado || (d.totalFlete || d.amount_withheld || 0),
+            date: d.date || new Date().toLocaleDateString('es-CO')
+          }));
+          const merged = existing.concat(normalized);
+          localStorage.setItem('uploaded_data', JSON.stringify(merged));
+          console.log('Saved uploaded_data to localStorage, records:', merged.length);
+        } catch (e) {
+          console.error('Failed to persist uploaded data', e);
+        }
 
         console.log('Data mapped with specific Excel headers:', preparedData);
 
         // Here we would push to Supabase
         // const { error } = await supabase.from('certificates').insert(preparedData);
 
-        // Simulate chunk upload
-        for (let i = 0; i <= 100; i += 20) {
-          setUploadProgress(i);
-          await new Promise(r => setTimeout(r, 200));
+        // Upload file to server (demo endpoint)
+        const formData = new FormData();
+        formData.append('file', file);
+        try {
+          const uploadResponse = await fetch('https://httpbin.org/post', {
+            method: 'POST',
+            body: formData,
+          });
+          if (!uploadResponse.ok) throw new Error('Upload failed');
+          // You could handle response data here
+          setUploadProgress(100);
+          setStatus({ type: 'success', message: `${data.length} registros de ${config.type.toUpperCase()} (${config.year}) cargados correctamente.` });
+        } catch (uploadError) {
+          console.error(uploadError);
+          setStatus({ type: 'error', message: 'Error al subir el archivo al servidor.' });
         }
-
-        setStatus({ type: 'success', message: `${data.length} registros de ${config.type.toUpperCase()} (${config.year}) cargados correctamente.` });
         setIsUploading(false);
       };
       reader.readAsBinaryString(file);
@@ -105,7 +155,7 @@ export const AdminPortal = ({ onLogout }) => {
         </button>
       </div>
 
-      <div style={{ display: 'grid', gridTemplateColumns: (config.type === 'reteiva' || config.type === 'reteica') ? '1fr 1fr 1fr' : '1fr 1fr', gap: '1rem', marginBottom: '2rem' }}>
+      <div style={{ display: 'grid', gridTemplateColumns: '1fr 1fr', gap: '1rem' }}>
         <div className="input-group">
           <label>Tipo de Base</label>
           <select 
@@ -115,6 +165,14 @@ export const AdminPortal = ({ onLogout }) => {
             <option value="retefuente">ReteFuente</option>
             <option value="reteiva">ReteIVA</option>
             <option value="reteica">ReteICA</option>
+            <option value="fletes">Relación de pago de fletes</option>
+          </select>
+        </div>
+        <div className="input-group">
+          <label>Empresa</label>
+          <select value={company} onChange={(e) => setCompany(e.target.value)}>
+            <option value="TYM">TYM</option>
+            <option value="TAT">TAT</option>
           </select>
         </div>
         <div className="input-group">
@@ -127,6 +185,7 @@ export const AdminPortal = ({ onLogout }) => {
             <option value="2026">2026</option>
           </select>
         </div>
+
         {(config.type === 'reteiva' || config.type === 'reteica') && (
           <div className="input-group">
             <label>Periodo</label>
@@ -140,6 +199,42 @@ export const AdminPortal = ({ onLogout }) => {
               <option value="4">4 (Jul-Ago)</option>
               <option value="5">5 (Sep-Oct)</option>
               <option value="6">6 (Nov-Dic)</option>
+            </select>
+          </div>
+        )}
+
+        {config.type === 'fletes' && (
+          <div className="input-group">
+            <label>Quincena</label>
+            <select
+              value={config.period}
+              onChange={(e) => setConfig({...config, period: e.target.value})}
+            >
+              <option value="1">1ra quincena (1-15)</option>
+              <option value="2">2da quincena (16-31)</option>
+            </select>
+          </div>
+        )}
+
+        {config.type === 'fletes' && (
+          <div className="input-group">
+            <label>Mes</label>
+            <select
+              value={config.month || '1'}
+              onChange={(e) => setConfig({...config, month: e.target.value})}
+            >
+              <option value="1">Enero</option>
+              <option value="2">Febrero</option>
+              <option value="3">Marzo</option>
+              <option value="4">Abril</option>
+              <option value="5">Mayo</option>
+              <option value="6">Junio</option>
+              <option value="7">Julio</option>
+              <option value="8">Agosto</option>
+              <option value="9">Septiembre</option>
+              <option value="10">Octubre</option>
+              <option value="11">Noviembre</option>
+              <option value="12">Diciembre</option>
             </select>
           </div>
         )}
