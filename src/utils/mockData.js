@@ -198,6 +198,16 @@ export const EXCEL_MOCK_DATA = [
   { year: '2025', nit: '901002137', name: 'SEGURIDAD Y CAPITAL HUMANO SYCH S.A.S', account: '23670102', concept: 'Reteiva Regimen Simple de Tributación- SIM', percentage: '15%', base: -457836, retained: 68000, period: '6', date: '6/01/2026', company: 'TAT' },
   { year: '2026', nit: '901002137', name: 'SEGURIDAD Y CAPITAL HUMANO SYCH S.A.S', account: '23670102', concept: 'Reteiva Regimen Simple de Tributación- SIM', percentage: '15%', base: -480727, retained: 71772, period: '1', date: '10/03/2026', company: 'TAT' },
   { year: '2026', nit: '901002137', name: 'SEGURIDAD Y CAPITAL HUMANO SYCH S.A.S', account: '23670102', concept: 'Reteiva Regimen Simple de Tributación- SIM', percentage: '15%', base: -503618, retained: 75542, period: '2', date: '6/05/2026', company: 'TAT' },
+  // RETEIVA TYM 2026
+  { year: '2026', nit: '901002137', name: 'SEGURIDAD Y CAPITAL HUMANO SYCH SAS',   account: '23670102', concept: 'Reteiva Regimen Simple de Tributación- SIM', percentage: '15%', base: -480727,   retained: 72109,    period: '1', date: '28/02/2026', company: 'TYM' },
+  { year: '2026', nit: '901699344', name: 'INVERINDUSTRIALES SAS',                  account: '23670102', concept: 'Reteiva Regimen Simple de Tributación- SIM', percentage: '15%', base: -682722,   retained: 102408,   period: '1', date: '28/02/2026', company: 'TYM' },
+  // RETEIVA TYM PERIODO 2 (MAR-ABR 2026)
+  { year: '2026', nit: '901002137', name: 'SEGURIDAD Y CAPITAL HUMANO SYCH SAS',   account: '23670102', concept: 'Reteiva Regimen Simple de Tributación- SIM', percentage: '15%', base: -503618,   retained: 75542,    period: '2', date: '30/04/2026', company: 'TYM' },
+  { year: '2026', nit: '901699344', name: 'INVERINDUSTRIALES SAS',                  account: '23670102', concept: 'Reteiva Regimen Simple de Tributación- SIM', percentage: '15%', base: -682722,   retained: 102408,   period: '2', date: '30/04/2026', company: 'TYM' },
+  { year: '2026', nit: '902004611', name: 'COMERCIALIZADORA DE REFRIGERADOS NUTRESA SAS', account: '23670102', concept: 'Reteiva Regimen Simple de Tributación- SIM', percentage: '15%', base: -9004456, retained: 1350669, period: '2', date: '30/04/2026', company: 'TYM' },
+  // RETEIVA TYM PERIODO 3 (MAY-JUN 2026)
+  { year: '2026', nit: '901002137', name: 'SEGURIDAD Y CAPITAL HUMANO SYCH SAS',   account: '23670102', concept: 'Reteiva Regimen Simple de Tributación- SIM', percentage: '15%', base: -503618,  retained: 75771,  period: '3', date: '30/06/2026', company: 'TYM' },
+  { year: '2026', nit: '901699344', name: 'INVERINDUSTRIALES SAS',                  account: '23670102', concept: 'Reteiva Regimen Simple de Tributación- SIM', percentage: '15%', base: -671545,  retained: 100731, period: '3', date: '30/06/2026', company: 'TYM' },
   // RETEICA ENERO-FEBRERO 2025
   { year: '2025', nit: '10261217', name: 'LUIS ENRIQUE RODRIGUEZ ORTIZ', account: '23680106', concept: 'Reteica Manizales 3.7/1000', percentage: '3.7/1000', base: -9635000, retained: 35650, period: '1' },
   { year: '2025', nit: '1053811633', name: 'JUANITA GOMEZ OSPINA', account: '23680106', concept: 'Reteica Manizales 3.7/1000', percentage: '3.7/1000', base: -205000, retained: 759, period: '1' },
