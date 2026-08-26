@@ -147,7 +147,7 @@ export const ACCIONISTAS_TYM = [
     vrPatrimonial: 12500000,
     valorPrima: 0,
     pctPart: 2,
-    posicionDecimal: 1,  // → 2.5%
+    posicionDecimal: 5,  // → 2.5%
   },
   {
     td: 13,
@@ -165,7 +165,7 @@ export const ACCIONISTAS_TYM = [
     vrPatrimonial: 12500000,
     valorPrima: 0,
     pctPart: 2,
-    posicionDecimal: 1,  // → 2.5%
+    posicionDecimal: 5,  // → 2.5%
   },
   {
     td: 13,
@@ -208,13 +208,11 @@ export const getNombreAccionista = (a) => {
 
 /**
  * Devuelve el porcentaje de participación como string legible.
- * Ej: pctPart=2, posicionDecimal=1 → "2.5"
+ * Ej: pctPart=2, posicionDecimal=5 → "2.5"
  *     pctPart=10, posicionDecimal=0 → "10"
  */
 export const getPorcentaje = (a) => {
-  if (a.posicionDecimal === 1) {
-    // El porcentaje real tiene un decimal: pctPart contiene la parte entera,
-    // posicionDecimal es el decimal → ej. 2 y 1 = 2.5%
+  if (a.posicionDecimal && a.posicionDecimal !== 0) {
     return `${a.pctPart}.${a.posicionDecimal}`;
   }
   return `${a.pctPart}`;
