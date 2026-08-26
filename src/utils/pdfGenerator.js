@@ -222,13 +222,10 @@ export const generateCertificatePDF = (certificateData) => {
     // Año fiscal = año seleccionado en el formulario
     const yearFiscal = year || '2025';
 
-    // Fecha de firma: hoy
-    const hoy = new Date();
-    const diasMes = ['enero','febrero','marzo','abril','mayo','junio',
-                     'julio','agosto','septiembre','octubre','noviembre','diciembre'];
-    const diaStr  = hoy.getDate();
-    const mesStr  = diasMes[hoy.getMonth()];
-    const anioStr = hoy.getFullYear();
+    // Fecha de firma: fija según instrucción
+    const diaStr  = 31;
+    const mesStr  = 'julio';
+    const anioStr = 2026;
 
     // ── ENCABEZADO INSTITUCIONAL (tabla FOR-SST-055) ─────────────────────────
     doc.setDrawColor(80, 80, 80);
@@ -390,8 +387,26 @@ export const generateCertificatePDF = (certificateData) => {
       y
     );
 
+    // ── NOTA ELECTRÓNICA ──────────────────────────────────────────────────────
+    y += 6;
+    doc.setDrawColor(180);
+    doc.setLineWidth(0.3);
+    doc.rect(margin, y, contentW, 14);
+    doc.setFont('helvetica', 'normal');
+    doc.setFontSize(9);
+    doc.setTextColor(60);
+    const notaLines = doc.splitTextToSize(
+      'Certificado generado electrónicamente a través del Portal Tributario de Tiendas y Marcas del ' +
+      'Eje Cafetero S.A.S, no necesita firma autógrafa.',
+      contentW - 6
+    );
+    notaLines.forEach((line, i) => {
+      doc.text(line, margin + 3, y + 5 + i * 5);
+    });
+    y += 18;
+
     // ── FIRMAS ────────────────────────────────────────────────────────────────
-    y += 10;
+    y += 4;
     doc.setFont('helvetica', 'normal');
     doc.setFontSize(10);
     doc.setTextColor(0);
@@ -405,19 +420,6 @@ export const generateCertificatePDF = (certificateData) => {
     doc.setLineWidth(0.4);
     doc.line(firmaIzqX, y, firmaIzqX + 60, y);
     doc.line(firmaDerX, y, firmaDerX + 60, y);
-
-    // Sello central (texto en caja)
-    const selloX = pageW / 2;
-    const selloY = y - 12;
-    doc.setDrawColor(80);
-    doc.setLineWidth(0.3);
-    doc.rect(selloX - 22, selloY, 44, 18);
-    doc.setFont('helvetica', 'bold');
-    doc.setFontSize(7);
-    doc.text('TIENDAS & MARCAS', selloX, selloY + 5, { align: 'center' });
-    doc.text('DEL EJE CAFETERO S.A.S.', selloX, selloY + 9, { align: 'center' });
-    doc.setFont('helvetica', 'normal');
-    doc.text('NIT.900.973.932-9', selloX, selloY + 13, { align: 'center' });
 
     y += 4;
     // Datos firma izquierda
