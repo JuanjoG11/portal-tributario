@@ -374,7 +374,20 @@ export const generateCertificatePDF = (certificateData) => {
       y
     );
 
-    // Párrafo 4 — finalidad (justificado)
+    // Párrafo 4 — cuenta por pagar (dinámico)
+    y += 2;
+    if (accionista.cuentaPorPagar) {
+      const cppStr    = fmtMoney(accionista.cuentaPorPagar);
+      const cppLetras = numberToWords(accionista.cuentaPorPagar);
+      y = printJustified(
+        `A la fecha de 31 de diciembre de ${yearFiscal}, Tiene una cuenta por pagar a TIENDAS Y MARCAS ` +
+        `DEL EJE CAFETERO SAS por valor de $${cppStr} (${cppLetras} pesos m/c).`,
+        y
+      );
+      y += 2;
+    }
+
+    // Párrafo 5 — finalidad (justificado)
     y += 2;
     y = printJustified(
       'Este certificado se expide a solicitud del interesado para efectos de su declaración de renta ' +

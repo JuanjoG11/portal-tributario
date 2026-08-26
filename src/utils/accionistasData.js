@@ -22,6 +22,7 @@ export const ACCIONISTAS_TYM = [
     valorPrima: 0,
     pctPart: 20,
     posicionDecimal: 0,
+    cuentaPorPagar: 70914621,
   },
   {
     td: 31,
@@ -40,6 +41,7 @@ export const ACCIONISTAS_TYM = [
     valorPrima: 0,
     pctPart: 20,
     posicionDecimal: 0,
+    cuentaPorPagar: 70914621,
   },
   {
     td: 13,
@@ -58,6 +60,7 @@ export const ACCIONISTAS_TYM = [
     valorPrima: 0,
     pctPart: 10,
     posicionDecimal: 0,
+    cuentaPorPagar: 35457311,
   },
   {
     td: 13,
@@ -76,6 +79,7 @@ export const ACCIONISTAS_TYM = [
     valorPrima: 0,
     pctPart: 10,
     posicionDecimal: 0,
+    cuentaPorPagar: 35457311,
   },
   {
     td: 13,
@@ -94,6 +98,7 @@ export const ACCIONISTAS_TYM = [
     valorPrima: 0,
     pctPart: 10,
     posicionDecimal: 0,
+    cuentaPorPagar: 35457311,
   },
   {
     td: 13,
@@ -112,6 +117,7 @@ export const ACCIONISTAS_TYM = [
     valorPrima: 0,
     pctPart: 10,
     posicionDecimal: 0,
+    cuentaPorPagar: 35457311,
   },
   {
     td: 13,
@@ -130,6 +136,7 @@ export const ACCIONISTAS_TYM = [
     valorPrima: 0,
     pctPart: 10,
     posicionDecimal: 0,
+    cuentaPorPagar: 35457311,
   },
   {
     td: 13,
@@ -147,7 +154,8 @@ export const ACCIONISTAS_TYM = [
     vrPatrimonial: 12500000,
     valorPrima: 0,
     pctPart: 2,
-    posicionDecimal: 5,  // → 2.5%
+    posicionDecimal: 5,
+    cuentaPorPagar: 8864328,
   },
   {
     td: 13,
@@ -165,7 +173,8 @@ export const ACCIONISTAS_TYM = [
     vrPatrimonial: 12500000,
     valorPrima: 0,
     pctPart: 2,
-    posicionDecimal: 5,  // → 2.5%
+    posicionDecimal: 5,
+    cuentaPorPagar: 8864328,
   },
   {
     td: 13,
@@ -184,6 +193,7 @@ export const ACCIONISTAS_TYM = [
     valorPrima: 0,
     pctPart: 5,
     posicionDecimal: 0,
+    cuentaPorPagar: 17728655,
   },
 ];
 
