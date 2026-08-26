@@ -284,19 +284,16 @@ export const generateCertificatePDF = (certificateData) => {
     doc.setFontSize(14);
     doc.text('COMUNICACIÓN EXTERNA', hX + colA + colB / 2, hY + rowH * 1.5 + 1.5, { align: 'center' });
 
-    // Columna derecha: logo TYM
+    // Columna derecha: logo TYM — cuadrado y centrado en la celda
     const currentLogo = companyId === 'TAT' ? logoTatBase64 : logoBase64;
     if (currentLogo && currentLogo.trim() !== '') {
       try {
-        doc.addImage(currentLogo, 'PNG', hX + colA + colB + 2, hY + 1, colC - 4, rowH * 3 - 2);
+        const logoSize = rowH * 3 - 4;  // cuadrado, margen de 2px arriba y abajo
+        const logoX = hX + colA + colB + (colC - logoSize) / 2;
+        const logoY = hY + (rowH * 3 - logoSize) / 2;
+        doc.addImage(currentLogo, 'PNG', logoX, logoY, logoSize, logoSize);
       } catch (e) {}
     }
-
-    // "Página 1 de 2" debajo del encabezado, alineado a la derecha
-    doc.setFont('helvetica', 'normal');
-    doc.setFontSize(8);
-    doc.setTextColor(80);
-    doc.text('Página 1 de 2', hX + hTotal, hY + rowH * 3 + 5, { align: 'right' });
 
     // ── CUERPO ────────────────────────────────────────────────────────────────
     let y = hY + rowH * 3 + 14;
