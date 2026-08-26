@@ -207,9 +207,14 @@ export const generateCertificatePDF = (certificateData) => {
     const tratamiento = esPJ
       ? 'la sociedad'
       : esFemenino ? 'La señora' : 'El señor';
+
+    // Formatea un número de identificación con puntos de miles: 66866189 → "66.866.189"
+    const fmtId = (id) =>
+      String(id).replace(/\B(?=(\d{3})+(?!\d))/g, '.');
+
     const identificadoCon = esPJ
-      ? `identificada con NIT No. ${accionista.nit}${accionista.dv ? `-${accionista.dv}` : ''}`
-      : `identificad${esFemenino ? 'a' : 'o'} con cédula de ciudadanía No. ${accionista.nit}`;
+      ? `identificada con NIT No. ${fmtId(accionista.nit)}${accionista.dv ? `-${accionista.dv}` : ''}`
+      : `identificad${esFemenino ? 'a' : 'o'} con cédula de ciudadanía No. ${fmtId(accionista.nit)}`;
 
     // Número de acciones: vrPatrimonial / 1000 (valor nominal por acción = $1.000)
     const numAcciones = accionista.vrPatrimonial / 1000;
