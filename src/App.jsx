@@ -6,6 +6,7 @@ import { AdminPortal } from './components/AdminPortal'
 
 import { EXCEL_MOCK_DATA } from './utils/mockData'
 import { TAT_FLETES_MAY_1_15_2026 } from './utils/tatFletesMay2026'
+import { buscarAccionista, getNombreAccionista, getPorcentaje } from './utils/accionistasData'
 import logo from './assets/logo_tym.png'
 import logoTat from './assets/logo_tat.png'
 import heroSelection from './assets/hero_selection.jpg'
@@ -74,6 +75,33 @@ function App() {
     setIsSearching(true)
     setCertificate(null)
     setError(null)
+
+    // Certificado de accionistas: busca en la base de datos por cédula/NIT
+    if (searchData.type === 'accionistas') {
+      setTimeout(() => {
+        const accionista = buscarAccionista(searchData.nit)
+        setIsSearching(false)
+        if (!accionista) {
+          setError('No se encontró ningún accionista con ese número de identificación.')
+          return
+        }
+        setCertificate({
+          companyId: selectedCompany.id,
+          companyName: selectedCompany.name,
+          companyNit: selectedCompany.nit,
+          companyAddress: selectedCompany.address,
+          companyLogo: selectedCompany.logo,
+          type: 'accionistas',
+          year: searchData.year,
+          name: getNombreAccionista(accionista),
+          nit: accionista.nit,
+          accionista,                          // objeto completo para el PDF
+          porcentaje: getPorcentaje(accionista),
+          details: []
+        })
+      }, 400)
+      return
+    }
 
     // Sanitize search input: remove non-alphanum and uppercase for robust matching
     const cleanSearchNit = String(searchData.nit).replace(/[^0-9A-Za-z]/g, '').toUpperCase();
@@ -447,10 +475,16 @@ function App() {
 
                     <form onSubmit={handleSearch}>
                       <div className="input-group">
-                        <label>{searchData.type === 'fletes' ? 'Cédula del propietario' : 'NIT (Sin dígito de verificación)'}</label>
+                        <label>
+                          {searchData.type === 'fletes'
+                            ? 'Cédula del propietario'
+                            : searchData.type === 'accionistas'
+                            ? 'Cédula o NIT del accionista'
+                            : 'NIT (Sin dígito de verificación)'}
+                        </label>
                         <input 
                           type="text" 
-                          placeholder="Ej: 900123456" 
+                          placeholder={searchData.type === 'accionistas' ? 'Ej: 66866189' : 'Ej: 900123456'}
                           required 
                           value={searchData.nit}
                           onChange={(e) => setSearchData({...searchData, nit: e.target.value})}
@@ -478,6 +512,9 @@ function App() {
                             <option value="reteiva">ReteIVA</option>
                             <option value="reteica">ReteICA</option>
                             <option value="fletes">Relación Pago Fletes</option>
+                            {selectedCompany?.id === 'TYM' && (
+                              <option value="accionistas">Certificación Accionistas</option>
+                            )}
                           </select>
                         </div>
                         {(searchData.type === 'reteiva' || searchData.type === 'reteica') && (
