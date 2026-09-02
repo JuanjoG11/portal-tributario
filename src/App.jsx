@@ -3,6 +3,7 @@ import { FileText, ShieldCheck, Download, Search } from 'lucide-react'
 import { motion, AnimatePresence } from 'framer-motion'
 import { generateCertificatePDF } from './utils/pdfGenerator'
 import { AdminPortal } from './components/AdminPortal'
+import { CertificadoRetenciones } from './components/CertificadoRetenciones'
 
 import { EXCEL_MOCK_DATA } from './utils/mockData'
 import { TAT_FLETES_MAY_1_15_2026 } from './utils/tatFletesMay2026'
@@ -76,9 +77,15 @@ function App() {
     setCertificate(null)
     setError(null)
 
+    // Certificado de Ingresos y Retenciones F.220 (TAT): redirige a vista dedicada
+    if (searchData.type === 'retenciones220') {
+      setIsSearching(false)
+      setView('retenciones')
+      return
+    }
+
     // Certificado de accionistas: busca en la base de datos por cédula/NIT
-    if (searchData.type === 'accionistas') {
-      setTimeout(() => {
+    if (searchData.type === 'accionistas') {      setTimeout(() => {
         const accionista = buscarAccionista(searchData.nit)
         setIsSearching(false)
         if (!accionista) {
@@ -447,6 +454,24 @@ function App() {
               >
                 Certificados
               </button>
+              {selectedCompany?.id === 'TAT' && (
+                <button
+                  className={`btn ${view === 'retenciones' ? 'btn-primary' : 'btn-ghost'}`}
+                  style={{
+                    fontSize: '0.85rem',
+                    padding: '0.5rem 1rem',
+                    ...(view !== 'retenciones' && {
+                      background: 'linear-gradient(135deg, #003366, #006633)',
+                      color: 'white',
+                      border: 'none',
+                      borderRadius: '10px',
+                    })
+                  }}
+                  onClick={() => setView('retenciones')}
+                >
+                  Cert. Retenciones
+                </button>
+              )}
               <button 
                 className="btn btn-ghost"
                 style={{ fontSize: '0.85rem', padding: '0.5rem 1rem' }}
@@ -459,8 +484,24 @@ function App() {
 
           <main className="container">
             <AnimatePresence mode="wait">
-              {view === 'portal' ? (
-                <motion.section 
+              {view === 'retenciones' ? (
+                <motion.section
+                  key="retenciones"
+                  initial={{ opacity: 0, y: 20 }}
+                  animate={{ opacity: 1, y: 0 }}
+                  exit={{ opacity: 0, y: -20 }}
+                  style={{
+                    width: '100%',
+                    display: 'flex',
+                    justifyContent: 'center',
+                    padding: '2rem 1rem',
+                    minHeight: '80vh',
+                    alignItems: 'flex-start',
+                  }}
+                >
+                  <CertificadoRetenciones />
+                </motion.section>
+              ) : view === 'portal' ? (                <motion.section 
                   key="portal"
                   initial={{ opacity: 0, y: 20 }}
                   animate={{ opacity: 1, y: 0 }}
@@ -514,6 +555,9 @@ function App() {
                             <option value="fletes">Relación Pago Fletes</option>
                             {selectedCompany?.id === 'TYM' && (
                               <option value="accionistas">Certificación Accionistas</option>
+                            )}
+                            {selectedCompany?.id === 'TAT' && (
+                              <option value="retenciones220">Cert. Ingresos y Retenciones (F.220)</option>
                             )}
                           </select>
                         </div>

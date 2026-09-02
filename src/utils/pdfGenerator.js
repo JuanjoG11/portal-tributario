@@ -1,4 +1,4 @@
-import { jsPDF } from 'jspdf';
+﻿import { jsPDF } from 'jspdf';
 import { logoBase64 } from './logoBase64';
 import { logoTatBase64 } from './logoTatBase64';
 
@@ -32,7 +32,7 @@ export const generateCertificatePDF = (certificateData) => {
     }
     doc.setFont('helvetica', 'bold');
     doc.setFontSize(14);
-    doc.text('RELACIÓN DE PAGO DE FLETES', 110, 18, { align: 'center' });
+    doc.text('RELACIÃ“N DE PAGO DE FLETES', 110, 18, { align: 'center' });
     doc.setFontSize(10);
     doc.setFont('helvetica', 'normal');
     doc.text(periodRange || '2026', 110, 25, { align: 'center' });
@@ -43,7 +43,7 @@ export const generateCertificatePDF = (certificateData) => {
     doc.setFont('helvetica', 'bold');
     doc.text('Empresa :', 13, 38);
     doc.text('Nit :', 13, 42);
-    doc.text('Dirección :', 13, 46);
+    doc.text('DirecciÃ³n :', 13, 46);
 
     doc.text(companyName.toUpperCase(), 45, 38);
     doc.setFont('helvetica', 'normal');
@@ -54,7 +54,7 @@ export const generateCertificatePDF = (certificateData) => {
     doc.roundedRect(10, 52, 190, 12, 2, 2);
     doc.setFont('helvetica', 'bold');
     doc.text('Pagado a :', 13, 58);
-    doc.text('Identificación :', 13, 62);
+    doc.text('IdentificaciÃ³n :', 13, 62);
     
     doc.text(String(name).toUpperCase(), 45, 58);
     doc.setFont('helvetica', 'normal');
@@ -69,7 +69,7 @@ export const generateCertificatePDF = (certificateData) => {
     // Table Headers
     doc.setFont('helvetica', 'bold');
     doc.setFontSize(8);
-    doc.text('CONCEPTO DE LIQUIDACIÓN / PLACA', 15, 71);
+    doc.text('CONCEPTO DE LIQUIDACIÃ“N / PLACA', 15, 71);
     doc.text('VALOR', 180, 71, { align: 'right' });
     doc.line(10, 73, 200, 73);
 
@@ -87,8 +87,8 @@ export const generateCertificatePDF = (certificateData) => {
 
     // Consolidated Deductions
     const items = [
-      { label: '(-) Retención en la Fuente (1%)', value: retefuente },
-      { label: '(-) Retención ICA', value: reteica },
+      { label: '(-) RetenciÃ³n en la Fuente (1%)', value: retefuente },
+      { label: '(-) RetenciÃ³n ICA', value: reteica },
       { label: '(-) Descuentos Adicionales', value: adicionales || 0 },
       { label: '(-) Seguridad Social', value: seguridadSocial || 0 },
     ];
@@ -115,7 +115,7 @@ export const generateCertificatePDF = (certificateData) => {
     doc.text('Este documento es de caracter informativo bajo la figura de contrato de prestacion de servicios.', 13, footerTextY + 5);
     doc.setFont('helvetica', 'bold');
     doc.setFontSize(10);
-    doc.text('OBSERVACIÓN: Cualquier novedad con el valor de los fletes comunicarse con el jefe logístico.', 13, footerTextY + 10);
+    doc.text('OBSERVACIÃ“N: Cualquier novedad con el valor de los fletes comunicarse con el jefe logÃ­stico.', 13, footerTextY + 10);
 
     // --- Signature ---
     const signY = footerTextY + 20;
@@ -128,7 +128,7 @@ export const generateCertificatePDF = (certificateData) => {
     // Watermark & Date
     doc.setFontSize(7);
     doc.setTextColor(100);
-    doc.text(`Fecha de expedición: ${new Date().toLocaleString('es-CO')}`, 198, signY + 12, { align: 'right' });
+    doc.text(`Fecha de expediciÃ³n: ${new Date().toLocaleString('es-CO')}`, 198, signY + 12, { align: 'right' });
     doc.text(`Generado por el Portal Tributario ${companyId}`, 198, signY + 25, { align: 'right' });
 
     doc.save(`Relacion_Fletes_${nit}_2026.pdf`);
@@ -142,17 +142,17 @@ export const generateCertificatePDF = (certificateData) => {
     const margin = 18;
     const contentW = pageW - margin * 2;
 
-    // ── helpers ──────────────────────────────────────────────────────────────
+    // â”€â”€ helpers â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€
 
-    // Formatea un número como moneda colombiana: 50000000 → "50.000.000"
+    // Formatea un nÃºmero como moneda colombiana: 50000000 â†’ "50.000.000"
     const fmtMoney = (n) =>
       new Intl.NumberFormat('es-CO', { minimumFractionDigits: 0, maximumFractionDigits: 0 }).format(n);
 
-    // Convierte un número a palabras (millones / miles / unidades) en español
+    // Convierte un nÃºmero a palabras (millones / miles / unidades) en espaÃ±ol
     const numberToWords = (n) => {
       if (n === 0) return 'cero';
       const unidades  = ['','un','dos','tres','cuatro','cinco','seis','siete','ocho','nueve',
-                         'diez','once','doce','trece','catorce','quince','dieciséis',
+                         'diez','once','doce','trece','catorce','quince','diecisÃ©is',
                          'diecisiete','dieciocho','diecinueve'];
       const decenas   = ['','diez','veinte','treinta','cuarenta','cincuenta',
                          'sesenta','setenta','ochenta','noventa'];
@@ -179,7 +179,7 @@ export const generateCertificatePDF = (certificateData) => {
       let resultado  = '';
 
       if (millones > 0) {
-        resultado += millones === 1 ? 'un millón' : `${toWords(millones)} millones`;
+        resultado += millones === 1 ? 'un millÃ³n' : `${toWords(millones)} millones`;
       }
       if (miles > 0) {
         if (resultado) resultado += ' ';
@@ -192,31 +192,31 @@ export const generateCertificatePDF = (certificateData) => {
       return resultado;
     };
 
-    // Determina tratamiento gramatical: persona jurídica o natural (género)
-    // Para personas naturales intentamos detectar género por el nombre
+    // Determina tratamiento gramatical: persona jurÃ­dica o natural (gÃ©nero)
+    // Para personas naturales intentamos detectar gÃ©nero por el nombre
     const esPJ = accionista.td === 31;
     const nombreCompleto = esPJ
       ? accionista.razonSocial
       : [accionista.nombre1, accionista.otrosNombres, accionista.apellido1, accionista.apellido2]
           .filter(Boolean).join(' ');
 
-    // Heurística simple de género: nombres que terminan en 'a' → femenino
+    // HeurÃ­stica simple de gÃ©nero: nombres que terminan en 'a' â†’ femenino
     const primerNombre = (accionista.nombre1 || '').trim().toLowerCase();
     const esFemenino = !esPJ && primerNombre.endsWith('a');
 
     const tratamiento = esPJ
       ? 'la sociedad'
-      : esFemenino ? 'La señora' : 'El señor';
+      : esFemenino ? 'La seÃ±ora' : 'El seÃ±or';
 
-    // Formatea un número de identificación con puntos de miles: 66866189 → "66.866.189"
+    // Formatea un nÃºmero de identificaciÃ³n con puntos de miles: 66866189 â†’ "66.866.189"
     const fmtId = (id) =>
       String(id).replace(/\B(?=(\d{3})+(?!\d))/g, '.');
 
     const identificadoCon = esPJ
       ? `identificada con NIT No. ${fmtId(accionista.nit)}${accionista.dv ? `-${accionista.dv}` : ''}`
-      : `identificad${esFemenino ? 'a' : 'o'} con cédula de ciudadanía No. ${fmtId(accionista.nit)}`;
+      : `identificad${esFemenino ? 'a' : 'o'} con cÃ©dula de ciudadanÃ­a No. ${fmtId(accionista.nit)}`;
 
-    // Número de acciones: vrPatrimonial / 1000 (valor nominal por acción = $1.000)
+    // NÃºmero de acciones: vrPatrimonial / 1000 (valor nominal por acciÃ³n = $1.000)
     const numAcciones = accionista.vrPatrimonial / 1000;
     const numAccionesStr = fmtMoney(numAcciones);
     const numAccionesLetras = numberToWords(numAcciones);
@@ -224,21 +224,21 @@ export const generateCertificatePDF = (certificateData) => {
     const vrPatrimonialStr   = fmtMoney(accionista.vrPatrimonial);
     const vrPatrimonialLetras = numberToWords(accionista.vrPatrimonial);
 
-    // Año fiscal = año seleccionado en el formulario
+    // AÃ±o fiscal = aÃ±o seleccionado en el formulario
     const yearFiscal = year || '2025';
 
-    // Fecha de firma: fija según instrucción
+    // Fecha de firma: fija segÃºn instrucciÃ³n
     const diaStr  = 31;
     const mesStr  = 'julio';
     const anioStr = 2026;
 
-    // ── ENCABEZADO INSTITUCIONAL (tabla FOR-SST-055) ─────────────────────────
+    // â”€â”€ ENCABEZADO INSTITUCIONAL (tabla FOR-SST-055) â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€
     doc.setDrawColor(80, 80, 80);
     doc.setLineWidth(0.4);
 
     // Borde exterior de la tabla de encabezado
-    // Columna izq: código/versión/fecha  (55mm)
-    // Columna centro: COMUNICACIÓN EXTERNA (95mm)
+    // Columna izq: cÃ³digo/versiÃ³n/fecha  (55mm)
+    // Columna centro: COMUNICACIÃ“N EXTERNA (95mm)
     // Columna der: logo (40mm)
     const hX = margin;       // 18
     const hY = 10;
@@ -259,20 +259,20 @@ export const generateCertificatePDF = (certificateData) => {
     doc.line(hX, hY + rowH,     hX + colA, hY + rowH);
     doc.line(hX, hY + rowH * 2, hX + colA, hY + rowH * 2);
 
-    // Fila 1 izquierda: Código
+    // Fila 1 izquierda: CÃ³digo
     doc.setFontSize(8);
     doc.setFont('helvetica', 'bold');
     doc.setTextColor(0);
-    doc.text('Código: ', hX + 2, hY + 5);
+    doc.text('CÃ³digo: ', hX + 2, hY + 5);
     doc.setFont('helvetica', 'normal');
     doc.text('FOR-SST-055', hX + 16, hY + 5);
 
-    // Fila 2 izquierda: Versión (fondo naranja)
+    // Fila 2 izquierda: VersiÃ³n (fondo naranja)
     doc.setFillColor(220, 80, 20);
     doc.rect(hX, hY + rowH, colA, rowH, 'F');
     doc.setTextColor(255, 255, 255);
     doc.setFont('helvetica', 'bold');
-    doc.text('Versión: ', hX + 2, hY + rowH + 5);
+    doc.text('VersiÃ³n: ', hX + 2, hY + rowH + 5);
     doc.setFont('helvetica', 'normal');
     doc.text('01', hX + 18, hY + rowH + 5);
 
@@ -283,13 +283,13 @@ export const generateCertificatePDF = (certificateData) => {
     doc.setFont('helvetica', 'normal');
     doc.text('01-08-2017', hX + 15, hY + rowH * 2 + 5);
 
-    // Columna centro: COMUNICACIÓN EXTERNA (centrado vertical)
+    // Columna centro: COMUNICACIÃ“N EXTERNA (centrado vertical)
     doc.setTextColor(0);
     doc.setFont('helvetica', 'bold');
     doc.setFontSize(14);
-    doc.text('COMUNICACIÓN EXTERNA', hX + colA + colB / 2, hY + rowH * 1.5 + 1.5, { align: 'center' });
+    doc.text('COMUNICACIÃ“N EXTERNA', hX + colA + colB / 2, hY + rowH * 1.5 + 1.5, { align: 'center' });
 
-    // Columna derecha: logo TYM — cuadrado y centrado en la celda
+    // Columna derecha: logo TYM â€” cuadrado y centrado en la celda
     const currentLogo = companyId === 'TAT' ? logoTatBase64 : logoBase64;
     if (currentLogo && currentLogo.trim() !== '') {
       try {
@@ -300,7 +300,7 @@ export const generateCertificatePDF = (certificateData) => {
       } catch (e) {}
     }
 
-    // ── CUERPO ────────────────────────────────────────────────────────────────
+    // â”€â”€ CUERPO â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€
     let y = hY + rowH * 3 + 14;
     const lineH = 6.5;
 
@@ -313,10 +313,10 @@ export const generateCertificatePDF = (certificateData) => {
       lines.forEach((line, i) => {
         const isLast = i === lines.length - 1;
         if (isLast) {
-          // Última línea: alineada a la izquierda (no justificar)
+          // Ãšltima lÃ­nea: alineada a la izquierda (no justificar)
           doc.text(line, margin, startY);
         } else {
-          // Líneas completas: justificar manualmente
+          // LÃ­neas completas: justificar manualmente
           const words = line.trim().split(/\s+/);
           if (words.length <= 1) {
             doc.text(line, margin, startY);
@@ -335,30 +335,30 @@ export const generateCertificatePDF = (certificateData) => {
       return startY;
     };
 
-    // Título centrado
+    // TÃ­tulo centrado
     doc.setFont('helvetica', 'bold');
     doc.setFontSize(11);
     doc.setTextColor(0);
     doc.text('CERTIFICADO DE ACCIONISTA', pageW / 2, y, { align: 'center' });
     y += lineH + 2;
 
-    // Párrafo 1 — identificación del firmante
+    // PÃ¡rrafo 1 â€” identificaciÃ³n del firmante
     y = printJustified(
-      'El suscrito, Marco Aurelio Parra Ávila, mayor de edad, identificado con cédula de ciudadanía ' +
+      'El suscrito, Marco Aurelio Parra Ãvila, mayor de edad, identificado con cÃ©dula de ciudadanÃ­a ' +
       'No. 16.774.226, en calidad de Representante Legal Suplente de la sociedad TIENDAS Y ' +
       'MARCAS DEL EJE CAFETERO S.A.S., identificada con NIT No. 900.973.932-9, con domicilio en ' +
       'Dosquebradas - Risaralda,',
       y
     );
 
-    // Título CERTIFICA QUE (centrado, negrita)
+    // TÃ­tulo CERTIFICA QUE (centrado, negrita)
     y += 3;
     doc.setFont('helvetica', 'bold');
     doc.setFontSize(11);
     doc.text('CERTIFICA QUE:', pageW / 2, y, { align: 'center' });
     y += lineH + 1;
 
-    // Párrafo 2 — descripción del accionista (dinámico, justificado)
+    // PÃ¡rrafo 2 â€” descripciÃ³n del accionista (dinÃ¡mico, justificado)
     y = printJustified(
       `${tratamiento} ${nombreCompleto}, ${identificadoCon}, es accionista de esta sociedad y posee ` +
       `${numAccionesStr} (${numAccionesLetras}) acciones a un valor nominal de $1.000 (mil pesos m/c) ` +
@@ -366,15 +366,15 @@ export const generateCertificatePDF = (certificateData) => {
       y
     );
 
-    // Párrafo 3 — valor patrimonial (dinámico, justificado)
+    // PÃ¡rrafo 3 â€” valor patrimonial (dinÃ¡mico, justificado)
     y += 2;
     y = printJustified(
-      `A la fecha de 31 de diciembre de ${yearFiscal}, dicha participación tiene un valor patrimonial ` +
+      `A la fecha de 31 de diciembre de ${yearFiscal}, dicha participaciÃ³n tiene un valor patrimonial ` +
       `de $${vrPatrimonialStr}, (${vrPatrimonialLetras} pesos m/c.)`,
       y
     );
 
-    // Párrafo 4 — cuenta por pagar (dinámico)
+    // PÃ¡rrafo 4 â€” cuenta por pagar (dinÃ¡mico)
     y += 2;
     if (accionista.cuentaPorPagar) {
       const cppStr    = fmtMoney(accionista.cuentaPorPagar);
@@ -387,22 +387,22 @@ export const generateCertificatePDF = (certificateData) => {
       y += 2;
     }
 
-    // Párrafo 5 — finalidad (justificado)
+    // PÃ¡rrafo 5 â€” finalidad (justificado)
     y += 2;
     y = printJustified(
-      'Este certificado se expide a solicitud del interesado para efectos de su declaración de renta ' +
-      'y para los demás usos legales a que haya lugar.',
+      'Este certificado se expide a solicitud del interesado para efectos de su declaraciÃ³n de renta ' +
+      'y para los demÃ¡s usos legales a que haya lugar.',
       y
     );
 
-    // Párrafo 5 — lugar y fecha (justificado)
+    // PÃ¡rrafo 5 â€” lugar y fecha (justificado)
     y += 2;
     y = printJustified(
-      `En constancia se firma en Dosquebradas, a los ${diaStr} días del mes de ${mesStr} de ${anioStr}.`,
+      `En constancia se firma en Dosquebradas, a los ${diaStr} dÃ­as del mes de ${mesStr} de ${anioStr}.`,
       y
     );
 
-    // ── NOTA ELECTRÓNICA ──────────────────────────────────────────────────────
+    // â”€â”€ NOTA ELECTRÃ“NICA â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€
     y += 6;
     doc.setDrawColor(180);
     doc.setLineWidth(0.3);
@@ -411,8 +411,8 @@ export const generateCertificatePDF = (certificateData) => {
     doc.setFontSize(9);
     doc.setTextColor(60);
     const notaLines = doc.splitTextToSize(
-      'Certificado generado electrónicamente a través del Portal Tributario de Tiendas y Marcas del ' +
-      'Eje Cafetero S.A.S, no necesita firma autógrafa.',
+      'Certificado generado electrÃ³nicamente a travÃ©s del Portal Tributario de Tiendas y Marcas del ' +
+      'Eje Cafetero S.A.S, no necesita firma autÃ³grafa.',
       contentW - 6
     );
     notaLines.forEach((line, i) => {
@@ -420,7 +420,7 @@ export const generateCertificatePDF = (certificateData) => {
     });
     y += 18;
 
-    // ── FIRMAS ────────────────────────────────────────────────────────────────
+    // â”€â”€ FIRMAS â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€
     y += 4;
     doc.setFont('helvetica', 'normal');
     doc.setFontSize(10);
@@ -428,7 +428,7 @@ export const generateCertificatePDF = (certificateData) => {
     doc.text('Atentamente,', margin, y);
     y += lineH * 3.5;
 
-    // Líneas de firma
+    // LÃ­neas de firma
     const firmaIzqX  = margin;
     const firmaDerX  = pageW - margin - 60;
 
@@ -440,19 +440,19 @@ export const generateCertificatePDF = (certificateData) => {
     // Datos firma izquierda
     doc.setFont('helvetica', 'bold');
     doc.setFontSize(9);
-    doc.text('Marco Aurelio Parra Ávila', firmaIzqX, y);
+    doc.text('Marco Aurelio Parra Ãvila', firmaIzqX, y);
     doc.setFont('helvetica', 'normal');
     doc.text('C.C. 16.774.226', firmaIzqX, y + lineH);
     doc.text('Representante Legal S.', firmaIzqX, y + lineH * 2);
 
     // Datos firma derecha
     doc.setFont('helvetica', 'bold');
-    doc.text('Juliana Gutiérrez Granada', firmaDerX, y);
+    doc.text('Juliana GutiÃ©rrez Granada', firmaDerX, y);
     doc.setFont('helvetica', 'normal');
-    doc.text('Contadora Pública', firmaDerX, y + lineH);
+    doc.text('Contadora PÃºblica', firmaDerX, y + lineH);
     doc.text('T.P.230937-T', firmaDerX, y + lineH * 2);
 
-    // ── PIE DE PÁGINA ─────────────────────────────────────────────────────────
+    // â”€â”€ PIE DE PÃGINA â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€
     const footerY = 272;
     doc.setDrawColor(0);
     doc.setLineWidth(0.5);
@@ -523,8 +523,8 @@ export const generateCertificatePDF = (certificateData) => {
   doc.setFont('helvetica', 'normal');
   const dates = getPeriodDates(period, year);
   const dateText = (type.toUpperCase() === 'RETEIVA' || type.toUpperCase() === 'RETEICA')
-    ? `Año Gravable  ${year}  Desde : ${dates.desde} - Hasta : ${dates.hasta}`
-    : `Año Gravable  ${year}`;
+    ? `AÃ±o Gravable  ${year}  Desde : ${dates.desde} - Hasta : ${dates.hasta}`
+    : `AÃ±o Gravable  ${year}`;
   doc.text(dateText, 110, 24, { align: 'center' });
 
   // --- BOX 2: Agente Retenedor ---
@@ -534,7 +534,7 @@ export const generateCertificatePDF = (certificateData) => {
   doc.setFont('helvetica', 'bold');
   doc.text('Agente', 13, 38);
   doc.text('Retenedor :', 13, 42);
-  doc.text('Identificación :', 13, 46);
+  doc.text('IdentificaciÃ³n :', 13, 46);
 
   doc.setFont('helvetica', 'bold');
   doc.text(companyName || 'TIENDAS & MARCAS DEL EJE CAFETERO S.A.S', 45, 38);
@@ -546,7 +546,7 @@ export const generateCertificatePDF = (certificateData) => {
   doc.roundedRect(10, 52, 190, 12, 2, 2);
   doc.setFont('helvetica', 'bold');
   doc.text('Retuvo a :', 13, 58);
-  doc.text('Identificación :', 13, 62);
+  doc.text('IdentificaciÃ³n :', 13, 62);
   
   doc.setFont('helvetica', 'bold');
   doc.text(name.toUpperCase(), 45, 58);
@@ -561,9 +561,9 @@ export const generateCertificatePDF = (certificateData) => {
   // Table Headers
   doc.setFont('helvetica', 'normal');
   doc.setFontSize(7);
-  doc.text('CONCEPTO RETENCIÓN', 15, 71);
-  doc.text('MONTO SUJETO A RETENCIÓN', 130, 71, { align: 'center' });
-  doc.text('VALOR TOTAL RETENCIÓN', 178, 71, { align: 'center' });
+  doc.text('CONCEPTO RETENCIÃ“N', 15, 71);
+  doc.text('MONTO SUJETO A RETENCIÃ“N', 130, 71, { align: 'center' });
+  doc.text('VALOR TOTAL RETENCIÃ“N', 178, 71, { align: 'center' });
   doc.line(10, 73, 200, 73);
 
   // Data Rows
@@ -588,12 +588,12 @@ export const generateCertificatePDF = (certificateData) => {
   doc.setFont('helvetica', 'normal');
   doc.setFontSize(8);
   
-  let cityText = 'Ciudad donde se consignó :  PEREIRA - RISARALDA';
+  let cityText = 'Ciudad donde se consignÃ³ :  PEREIRA - RISARALDA';
   if (type.toUpperCase() === 'RETEICA') {
     const cityName = companyId === 'TAT' ? 'DOSQUEBRADAS - RISARALDA' : 'PEREIRA - RISARALDA';
     cityText = `Valor que fue consignado en la Unidad de Rentas del municipio de: ${cityName}`;
   } else if (companyId === 'TAT') {
-    cityText = 'Ciudad donde se consignó :  Administración de Impuestos Nacionales de DOSQUEBRADAS - RISARALDA';
+    cityText = 'Ciudad donde se consignÃ³ :  AdministraciÃ³n de Impuestos Nacionales de DOSQUEBRADAS - RISARALDA';
   }
   
   doc.text(cityText, 13, cityY + 5);
@@ -601,8 +601,8 @@ export const generateCertificatePDF = (certificateData) => {
   // --- BOX 6: Legal Text ---
   const legalY = cityY + 10;
   doc.roundedRect(10, legalY, 190, 10, 2, 2);
-  doc.text('Se expide este certificado para dar cumplimiento a lo previsto en el artículo 381 del Estatuto Tributario.', 13, legalY + 4);
-  doc.text('No necesita firma autógrafa (Art. 10 D R 836/91)', 13, legalY + 8);
+  doc.text('Se expide este certificado para dar cumplimiento a lo previsto en el artÃ­culo 381 del Estatuto Tributario.', 13, legalY + 4);
+  doc.text('No necesita firma autÃ³grafa (Art. 10 D R 836/91)', 13, legalY + 8);
 
   // --- Footer Signature & Date ---
   const footerY = legalY + 15;
@@ -617,11 +617,11 @@ export const generateCertificatePDF = (certificateData) => {
   const now = new Date();
   const isRetefuente = type.toUpperCase() === 'RETEFUENTE';
   
-  // Usar la fecha del registro si existe, de lo contrario usar la lógica anterior
+  // Usar la fecha del registro si existe, de lo contrario usar la lÃ³gica anterior
   const dateStr = date || (isRetefuente ? '30/03/2026' : now.toLocaleDateString('es-CO'));
   const timeStr = (date || isRetefuente) ? '' : ` - ${now.toLocaleTimeString('es-CO', { hour: '2-digit', minute: '2-digit', second: '2-digit', hour12: true })}`;
   
-  const label = (date || isRetefuente) ? 'Fecha de expedición' : 'Fecha y hora de expedición';
+  const label = (date || isRetefuente) ? 'Fecha de expediciÃ³n' : 'Fecha y hora de expediciÃ³n';
   
   doc.setFont('helvetica', 'normal');
   doc.setFontSize(8);
@@ -630,9 +630,305 @@ export const generateCertificatePDF = (certificateData) => {
   // Bottom Watermark
   doc.setFontSize(6);
   doc.setTextColor(100);
-  const watermark = 'Sw.Mekano E.R.P. Apolo Ingeniería (0#6-8814800 - 312 8504813) - ventas@apolosoft.com - www.apolosoft.com';
+  const watermark = 'Sw.Mekano E.R.P. Apolo IngenierÃ­a (0#6-8814800 - 312 8504813) - ventas@apolosoft.com - www.apolosoft.com';
   doc.text(watermark, 198, footerY + 25, { align: 'right' });
 
   const filename = `Certificado_${type}_${nit}_${year}${period ? `_P${period}` : ''}.pdf`;
   doc.save(filename);
+};
+
+// ─────────────────────────────────────────────────────────────────────────────
+// FORMULARIO 220 — Diseño moderno con logo TAT
+// ─────────────────────────────────────────────────────────────────────────────
+export const generateFormulario220PDF = (emp) => {
+  const doc = new jsPDF({ orientation: 'portrait', unit: 'mm', format: 'a4' });
+
+  // ── Paleta corporativa TAT ────────────────────────────────────────────────
+  const C = {
+    primary:   [0,   51,  102],   // azul oscuro
+    accent:    [0,  153,   76],   // verde TAT
+    light:     [240, 247, 255],   // fondo filas pares
+    white:     [255, 255, 255],
+    gray:      [100, 100, 100],
+    lightGray: [230, 234, 240],
+    text:      [30,  30,  30],
+    muted:     [120, 120, 120],
+    gold:      [255, 193,   7],
+  };
+
+  const PAGE_W = 210;
+  const PAGE_H = 297;
+  const ML = 14;   // margen izquierdo
+  const MR = 14;   // margen derecho
+  const CW = PAGE_W - ML - MR;  // 182 mm contenido
+
+  const fmtMoney = (n) => {
+    const num = parseFloat(n) || 0;
+    if (num === 0) return '$ -';
+    return '$ ' + new Intl.NumberFormat('es-CO', { minimumFractionDigits: 0 }).format(num);
+  };
+
+  // helper: rectángulo redondeado relleno
+  const rr = (x, y, w, h, r, fill, stroke) => {
+    if (fill)   { doc.setFillColor(...fill);   doc.roundedRect(x, y, w, h, r, r, 'F'); }
+    if (stroke) { doc.setDrawColor(...stroke); doc.roundedRect(x, y, w, h, r, r, 'S'); }
+  };
+
+  let y = 0;
+
+  // ── 1. BANDA SUPERIOR ─────────────────────────────────────────────────────
+  rr(0, 0, PAGE_W, 38, 0, C.primary);
+  // franja accent decorativa inferior
+  rr(0, 33, PAGE_W, 5, 0, C.accent);
+
+  // Logo TAT (blanco sobre azul)
+  try {
+    doc.addImage(logoTatBase64, 'PNG', ML, 5, 26, 26);
+  } catch(e) {}
+
+  // Nombre empresa
+  doc.setTextColor(...C.white);
+  doc.setFont('helvetica', 'bold');
+  doc.setFontSize(11);
+  doc.text('T.A.T. DISTRIBUCIONES DEL EJE CAFETERO S.A.S.', ML + 30, 13);
+  doc.setFont('helvetica', 'normal');
+  doc.setFontSize(7.5);
+  doc.text('NIT: 901.568.117-1  ·  Dosquebradas, Risaralda', ML + 30, 18);
+  doc.setFontSize(7);
+  doc.text('Agente de Retención en la Fuente  ·  Art. 383 E.T.', ML + 30, 23);
+
+  // Badge "220" a la derecha
+  rr(PAGE_W - MR - 22, 5, 22, 22, 3, C.accent);
+  doc.setTextColor(...C.white);
+  doc.setFont('helvetica', 'bold');
+  doc.setFontSize(18);
+  doc.text('220', PAGE_W - MR - 11, 20, { align: 'center' });
+
+  y = 42;
+
+  // ── 2. TÍTULO DOCUMENTO ───────────────────────────────────────────────────
+  doc.setTextColor(...C.text);
+  doc.setFont('helvetica', 'bold');
+  doc.setFontSize(13);
+  doc.text('Certificado de Ingresos y Retenciones', PAGE_W / 2, y + 7, { align: 'center' });
+  doc.setFont('helvetica', 'normal');
+  doc.setFontSize(9);
+  doc.setTextColor(...C.gray);
+  doc.text('por Rentas de Trabajo y de Pensiones  ·  Año Gravable 2025', PAGE_W / 2, y + 13, { align: 'center' });
+
+  y += 20;
+
+  // ── 3. TARJETA EMPLEADO ───────────────────────────────────────────────────
+  rr(ML, y, CW, 22, 4, C.light, C.lightGray);
+  // borde izquierdo accent
+  rr(ML, y, 3, 22, 0, C.accent);
+
+  doc.setTextColor(...C.muted);
+  doc.setFont('helvetica', 'normal');
+  doc.setFontSize(7);
+  doc.text('EMPLEADO', ML + 8, y + 5);
+
+  const nombreCompleto = [emp.nombre1, emp.nombre2, emp.apellido1, emp.apellido2].filter(Boolean).join(' ');
+  doc.setTextColor(...C.primary);
+  doc.setFont('helvetica', 'bold');
+  doc.setFontSize(12);
+  doc.text(nombreCompleto, ML + 8, y + 12);
+
+  doc.setTextColor(...C.gray);
+  doc.setFont('helvetica', 'normal');
+  doc.setFontSize(8);
+  doc.text(`Cédula de ciudadanía:  ${emp.id}`, ML + 8, y + 18);
+
+  // Período (derecha de la tarjeta)
+  doc.setTextColor(...C.muted);
+  doc.setFontSize(7);
+  doc.text('PERÍODO CERTIFICADO', PAGE_W - MR - 50, y + 5);
+  doc.setTextColor(...C.text);
+  doc.setFont('helvetica', 'bold');
+  doc.setFontSize(8.5);
+  doc.text(`${emp.fechaInicial}  →  ${emp.fechaFinal}`, PAGE_W - MR - 50, y + 12);
+  doc.setFont('helvetica', 'normal');
+  doc.setFontSize(7.5);
+  doc.setTextColor(...C.gray);
+  doc.text('Expedición: 28/03/2026', PAGE_W - MR - 50, y + 18);
+
+  y += 28;
+
+  // ── 4. SECCIÓN INGRESOS ───────────────────────────────────────────────────
+  // Título sección
+  rr(ML, y, CW, 7, 2, C.primary);
+  doc.setTextColor(...C.white);
+  doc.setFont('helvetica', 'bold');
+  doc.setFontSize(8);
+  doc.text('CONCEPTO DE LOS INGRESOS', ML + 4, y + 5);
+  doc.text('VALOR', PAGE_W - MR - 4, y + 5, { align: 'right' });
+  y += 7;
+
+  const ingresos = [
+    { cas: '36', label: 'Pagos por salarios',                                          val: emp.c36 },
+    { cas: '37', label: 'Pagos con bonos electrónicos, cheques, tarjetas o vales',     val: emp.c37 },
+    { cas: '38', label: 'Exceso pagos por alimentación > 41 UVT (art. 387-1 E.T.)',   val: emp.c38 },
+    { cas: '39', label: 'Pagos por honorarios',                                        val: emp.c39 },
+    { cas: '40', label: 'Pagos por servicios',                                         val: emp.c40 },
+    { cas: '41', label: 'Pagos por comisiones',                                        val: emp.c41 },
+    { cas: '42', label: 'Pagos por prestaciones sociales',                             val: emp.c42 },
+    { cas: '43', label: 'Pagos por viáticos',                                          val: emp.c43 },
+    { cas: '44', label: 'Pagos por gastos de representación',                          val: emp.c44 },
+    { cas: '45', label: 'Pagos por compensación trabajo asociado cooperativo',         val: emp.c45 },
+    { cas: '46', label: 'Otros pagos',                                                 val: emp.c46 },
+    { cas: '47', label: 'Auxilio de cesantías e intereses efectivamente pagados',      val: emp.c47 },
+    { cas: '48', label: 'Cesantías régimen tradicional CST (Cap. VII, Tít. VIII)',     val: emp.c48 },
+    { cas: '49', label: 'Auxilio de cesantías consignadas al fondo',                   val: emp.c49 },
+    { cas: '50', label: 'Pensiones de jubilación, vejez o invalidez',                  val: emp.c50 },
+    { cas: '51', label: 'Apoyos económicos educativos no reembolsables',               val: emp.c51 },
+  ];
+
+  const ROW_H = 6;
+  ingresos.forEach((r, i) => {
+    const bg = i % 2 === 0 ? C.white : C.light;
+    rr(ML, y, CW, ROW_H, 0, bg);
+    // número casilla (badge pequeño)
+    rr(ML + 2, y + 1, 7, 4, 1, C.lightGray);
+    doc.setTextColor(...C.muted);
+    doc.setFont('helvetica', 'bold');
+    doc.setFontSize(5.5);
+    doc.text(r.cas, ML + 5.5, y + 4, { align: 'center' });
+    // label
+    doc.setTextColor(...C.text);
+    doc.setFont('helvetica', 'normal');
+    doc.setFontSize(7);
+    doc.text(r.label, ML + 11, y + 4.2);
+    // value
+    doc.setFont('helvetica', r.val ? 'bold' : 'normal');
+    doc.setTextColor(r.val ? C.primary[0] : C.muted[0], r.val ? C.primary[1] : C.muted[1], r.val ? C.primary[2] : C.muted[2]);
+    doc.setFontSize(7.5);
+    doc.text(fmtMoney(r.val), PAGE_W - MR - 2, y + 4.2, { align: 'right' });
+    y += ROW_H;
+  });
+
+  // Total ingresos
+  const totalIng = ingresos.reduce((a, r) => a + (parseFloat(r.val) || 0), 0);
+  rr(ML, y, CW, 8, 0, C.primary);
+  doc.setTextColor(...C.white);
+  doc.setFont('helvetica', 'bold');
+  doc.setFontSize(8);
+  doc.text('52.  Total de Ingresos Brutos (Sume 36 a 51)', ML + 4, y + 5.5);
+  doc.text(fmtMoney(totalIng), PAGE_W - MR - 2, y + 5.5, { align: 'right' });
+  y += 8;
+
+  y += 5;
+
+  // ── 5. SECCIÓN APORTES ────────────────────────────────────────────────────
+  rr(ML, y, CW, 7, 2, C.accent);
+  doc.setTextColor(...C.white);
+  doc.setFont('helvetica', 'bold');
+  doc.setFontSize(8);
+  doc.text('CONCEPTO DE LOS APORTES', ML + 4, y + 5);
+  doc.text('VALOR', PAGE_W - MR - 4, y + 5, { align: 'right' });
+  y += 7;
+
+  const aportes = [
+    { cas: '53', label: 'Aportes obligatorios por salud a cargo del trabajador',                    val: emp.c53 },
+    { cas: '54', label: 'Aportes obligatorios a fondos de pensiones y solidaridad pensional',       val: emp.c54 },
+    { cas: '55', label: 'Cotizaciones voluntarias al RAIS',                                         val: emp.c55 },
+    { cas: '56', label: 'Aportes voluntarios a fondos de pensiones',                                val: emp.c56 },
+    { cas: '57', label: 'Aportes a cuentas AFC',                                                    val: emp.c57 },
+    { cas: '58', label: 'Aportes a cuentas AVC',                                                    val: emp.c58 },
+    { cas: '59', label: 'Ingreso laboral promedio últimos 6 meses (num. 4 art. 206 E.T.)',          val: emp.c59 },
+  ];
+
+  aportes.forEach((r, i) => {
+    const bg = i % 2 === 0 ? C.white : C.light;
+    rr(ML, y, CW, ROW_H, 0, bg);
+    rr(ML + 2, y + 1, 7, 4, 1, C.lightGray);
+    doc.setTextColor(...C.muted);
+    doc.setFont('helvetica', 'bold');
+    doc.setFontSize(5.5);
+    doc.text(r.cas, ML + 5.5, y + 4, { align: 'center' });
+    doc.setTextColor(...C.text);
+    doc.setFont('helvetica', 'normal');
+    doc.setFontSize(7);
+    doc.text(r.label, ML + 11, y + 4.2);
+    doc.setFont('helvetica', r.val ? 'bold' : 'normal');
+    doc.setTextColor(r.val ? C.accent[0] : C.muted[0], r.val ? C.accent[1] : C.muted[1], r.val ? C.accent[2] : C.muted[2]);
+    doc.setFontSize(7.5);
+    doc.text(fmtMoney(r.val), PAGE_W - MR - 2, y + 4.2, { align: 'right' });
+    y += ROW_H;
+  });
+
+  y += 5;
+
+  // ── 6. CASILLA 60 — RETENCIÓN (bloque destacado) ─────────────────────────
+  rr(ML, y, CW, 13, 3, C.accent);
+  doc.setTextColor(...C.white);
+  doc.setFont('helvetica', 'bold');
+  doc.setFontSize(7.5);
+  doc.text('60.  Valor de la retención en la fuente por ingresos laborales y de pensiones', ML + 4, y + 5.5);
+  doc.setFontSize(12);
+  doc.text(fmtMoney(emp.c60), PAGE_W - MR - 4, y + 9.5, { align: 'right' });
+  y += 13;
+
+  y += 6;
+
+  // ── 7. DATOS AGENTE RETENEDOR ─────────────────────────────────────────────
+  rr(ML, y, CW, 14, 3, C.light, C.lightGray);
+  rr(ML, y, 3, 14, 0, C.primary);
+  doc.setTextColor(...C.muted);
+  doc.setFont('helvetica', 'normal');
+  doc.setFontSize(6.5);
+  doc.text('AGENTE RETENEDOR', ML + 7, y + 4);
+  doc.setTextColor(...C.primary);
+  doc.setFont('helvetica', 'bold');
+  doc.setFontSize(9);
+  doc.text('T.A.T. DISTRIBUCIONES DEL EJE CAFETERO S.A.S.', ML + 7, y + 10);
+  doc.setTextColor(...C.gray);
+  doc.setFont('helvetica', 'normal');
+  doc.setFontSize(7);
+  doc.text('NIT: 901.568.117-1  ·  Dosquebradas, Risaralda', PAGE_W - MR - 4, y + 10, { align: 'right' });
+  y += 14;
+
+  y += 6;
+
+  // ── 8. NOTA LEGAL ─────────────────────────────────────────────────────────
+  rr(ML, y, CW, 28, 3, [250, 250, 235], [220, 220, 180]);
+  doc.setTextColor(90, 80, 0);
+  doc.setFont('helvetica', 'bold');
+  doc.setFontSize(6.5);
+  doc.text('Certifico que durante el año gravable de 2025:', ML + 4, y + 5);
+  doc.setFont('helvetica', 'normal');
+  doc.setFontSize(6);
+  const notas = [
+    '1. Mi patrimonio bruto excedió de 4.500 UVT ($224.095.000).',
+    '2. Mis ingresos brutos fueron Inferiores a 1.400 UVT ($569.719.000).',
+    '3. No fui responsable del impuesto sobre las ventas a 31 de diciembre de 2025.',
+    '4. Mis consumos mediante tarjeta de crédito no excedieron 1.400 UVT ($569.719.000).',
+    '5. Que el total de mis compras y consumos no superaron 1.400 UVT ($569.719.000).',
+  ];
+  notas.forEach((n, i) => { doc.text(n, ML + 4, y + 10 + i * 4); });
+  y += 28;
+
+  y += 3;
+
+  // NOTA DIAN
+  rr(ML, y, CW, 12, 3, [245, 245, 245], C.lightGray);
+  doc.setTextColor(...C.muted);
+  doc.setFont('helvetica', 'italic');
+  doc.setFontSize(5.8);
+  const dianNota = 'NOTA: Este certificado sustituye para todos los efectos legales la declaración de Renta y Complementario para el trabajador y pensionado que cumpla con lo establecido en el artículo 1.6.1.13.2.7 del Decreto 1625 de 2016. No necesita firma autógrafa.';
+  const dianLines = doc.splitTextToSize(dianNota, CW - 6);
+  dianLines.forEach((ln, i) => doc.text(ln, ML + 3, y + 4 + i * 3.5));
+  y += 12;
+
+  y += 6;
+
+  // ── 9. FOOTER ─────────────────────────────────────────────────────────────
+  rr(0, PAGE_H - 16, PAGE_W, 16, 0, C.primary);
+  rr(0, PAGE_H - 16, PAGE_W, 3, 0, C.accent);
+  doc.setTextColor(...C.white);
+  doc.setFont('helvetica', 'normal');
+  doc.setFontSize(6.5);
+  doc.text('Portal Tributario TAT  ·  Generado el ' + new Date().toLocaleDateString('es-CO', { day: '2-digit', month: 'long', year: 'numeric' }), ML, PAGE_H - 7);
+  doc.text('Documento generado electrónicamente  ·  No requiere firma autógrafa', PAGE_W - MR, PAGE_H - 7, { align: 'right' });
+
+  doc.save(`Formulario220_TAT_${emp.id}_2025.pdf`);
 };
