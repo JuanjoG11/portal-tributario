@@ -825,7 +825,7 @@ export const generateFormulario220PDF = (emp) => {
   tc(...MUTED); fn('normal', 4); doc.text('34. Dpto.', ML+152.5, y+2.5);
   tc(...TEXT); fn('bold', 6.5); doc.text('66', ML+160, y+6.2, { align:'center' });
   tc(...MUTED); fn('normal', 4); doc.text('35. Municipio', ML+169.5, y+2.5);
-  tc(...TEXT); fn('bold', 6.5); doc.text('001', ML+177, y+6.2, { align:'center' });
+  tc(...TEXT); fn('bold', 6.5); doc.text('170', ML+177, y+6.2, { align:'center' });
   y += 8;
 
   y += 2;
