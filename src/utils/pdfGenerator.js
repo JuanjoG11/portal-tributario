@@ -1,6 +1,7 @@
 ﻿import { jsPDF } from 'jspdf';
 import { logoBase64 } from './logoBase64';
 import { logoTatBase64 } from './logoTatBase64';
+import { logoDianBase64 } from './logoDianBase64';
 
 export const generateCertificatePDF = (certificateData) => {
   const doc = new jsPDF({ orientation: 'portrait', unit: 'mm', format: 'a4' });
@@ -638,297 +639,336 @@ export const generateCertificatePDF = (certificateData) => {
 };
 
 // ─────────────────────────────────────────────────────────────────────────────
-// FORMULARIO 220 — Diseño moderno con logo TAT
+
+// ─────────────────────────────────────────────────────────────────────────────
+
+// ─────────────────────────────────────────────────────────────────────────────
+// FORMULARIO 220 — Una sola página A4
 // ─────────────────────────────────────────────────────────────────────────────
 export const generateFormulario220PDF = (emp) => {
   const doc = new jsPDF({ orientation: 'portrait', unit: 'mm', format: 'a4' });
 
-  // ── Paleta corporativa TAT ────────────────────────────────────────────────
-  const C = {
-    primary:   [0,   51,  102],   // azul oscuro
-    accent:    [0,  153,   76],   // verde TAT
-    light:     [240, 247, 255],   // fondo filas pares
-    white:     [255, 255, 255],
-    gray:      [100, 100, 100],
-    lightGray: [230, 234, 240],
-    text:      [30,  30,  30],
-    muted:     [120, 120, 120],
-    gold:      [255, 193,   7],
+  const DIAN_GREEN = [0, 121, 52];
+  const DIAN_DARK  = [0,  70, 30];
+  const BLUE       = [0,  80,160];
+  const ROW_A      = [255,255,255];
+  const ROW_B      = [242,248,255];
+  const ROW_GA     = [255,255,255];
+  const ROW_GB     = [242,252,246];
+  const BORDER     = [190,205,220];
+  const TEXT       = [25, 25, 25];
+  const MUTED      = [120,120,120];
+  const GOLD       = [255,200, 30];
+  const WHITE      = [255,255,255];
+
+  const PW = 210, PH = 297;
+  const ML = 9, MR = 9, CW = PW - ML - MR;
+
+  // ── helpers ───────────────────────────────────────────────────────────────
+  const fc  = (...c) => doc.setFillColor(...c);
+  const tc  = (...c) => doc.setTextColor(...c);
+  const dc  = (...c) => doc.setDrawColor(...c);
+  const lw  = (w)    => doc.setLineWidth(w);
+  const fn  = (f, s) => { doc.setFont('helvetica', f); doc.setFontSize(s); };
+
+  const money = (n) => {
+    const v = parseFloat(n) || 0;
+    return v === 0 ? '-' : new Intl.NumberFormat('es-CO').format(v);
   };
 
-  const PAGE_W = 210;
-  const PAGE_H = 297;
-  const ML = 14;   // margen izquierdo
-  const MR = 14;   // margen derecho
-  const CW = PAGE_W - ML - MR;  // 182 mm contenido
-
-  const fmtMoney = (n) => {
-    const num = parseFloat(n) || 0;
-    if (num === 0) return '$ -';
-    return '$ ' + new Intl.NumberFormat('es-CO', { minimumFractionDigits: 0 }).format(num);
+  const pill = (x, y, w, h, col) => {
+    fc(...col); doc.roundedRect(x, y, w, h, 1, 1, 'F');
   };
 
-  // helper: rectángulo redondeado relleno
-  const rr = (x, y, w, h, r, fill, stroke) => {
-    if (fill)   { doc.setFillColor(...fill);   doc.roundedRect(x, y, w, h, r, r, 'F'); }
-    if (stroke) { doc.setDrawColor(...stroke); doc.roundedRect(x, y, w, h, r, r, 'S'); }
+  // fila de tabla: fondo + badge casilla + label + valor
+  const drawRow = (x, y, w, h, bg, badgeCol, cas, label, val, valCol) => {
+    fc(...bg); doc.rect(x, y, w, h, 'F');
+    dc(...BORDER); lw(0.15); doc.line(x, y, x + w, y);
+    // badge
+    pill(x + 1.2, y + 0.8, 7.5, h - 1.6, badgeCol);
+    tc(...(cas === '52' || cas === '60' ? WHITE : (badgeCol[0] < 150 ? BLUE : DIAN_GREEN)));
+    fn('bold', 5); doc.text(cas, x + 5, y + h - 1.2, { align: 'center' });
+    // label
+    tc(...TEXT); fn('normal', 6);
+    doc.text(label, x + 10, y + h - 1.5);
+    // valor
+    const hv = parseFloat(val) > 0;
+    fn(hv ? 'bold' : 'normal', 6.5);
+    tc(...(hv ? valCol : MUTED));
+    doc.text(money(val), PW - MR - 1.5, y + h - 1.5, { align: 'right' });
   };
 
   let y = 0;
 
-  // ── 1. BANDA SUPERIOR ─────────────────────────────────────────────────────
-  rr(0, 0, PAGE_W, 38, 0, C.primary);
-  // franja accent decorativa inferior
-  rr(0, 33, PAGE_W, 5, 0, C.accent);
+  // ══════════════════════════════════════════════════════════════════════════
+  // CABECERA  (0 → 26mm)
+  // ══════════════════════════════════════════════════════════════════════════
+  fc(...DIAN_GREEN); doc.rect(0, 0, PW, 26, 'F');
+  fc(...GOLD);       doc.rect(0, 23.5, PW, 2.5, 'F');
 
-  // Logo TAT (blanco sobre azul)
+  // caja DIAN izquierda
+  fc(...WHITE); doc.roundedRect(ML, 2.5, 28, 19, 2, 2, 'F');
   try {
-    doc.addImage(logoTatBase64, 'PNG', ML, 5, 26, 26);
-  } catch(e) {}
+    doc.addImage(logoDianBase64, 'JPEG', ML + 1, 3.5, 26, 17);
+  } catch(e) {
+    tc(...DIAN_DARK); fn('bold', 13);
+    doc.text('DIAN', ML + 14, 10.5, { align: 'center' });
+    fn('normal', 4.8);
+    const ds = doc.splitTextToSize('Dirección de Impuestos\ny Aduanas Nacionales', 24);
+    ds.forEach((l, i) => doc.text(l, ML + 14, 14 + i * 3, { align: 'center' }));
+  }
 
-  // Nombre empresa
-  doc.setTextColor(...C.white);
-  doc.setFont('helvetica', 'bold');
-  doc.setFontSize(11);
-  doc.text('T.A.T. DISTRIBUCIONES DEL EJE CAFETERO S.A.S.', ML + 30, 13);
-  doc.setFont('helvetica', 'normal');
-  doc.setFontSize(7.5);
-  doc.text('NIT: 901.568.117-1  ·  Dosquebradas, Risaralda', ML + 30, 18);
-  doc.setFontSize(7);
-  doc.text('Agente de Retención en la Fuente  ·  Art. 383 E.T.', ML + 30, 23);
+  // título central
+  tc(...WHITE); fn('bold', 10);
+  doc.text('Certificado de Ingresos y Retenciones', PW / 2, 8.5, { align: 'center' });
+  fn('normal', 8);
+  doc.text('por Rentas de Trabajo y de Pensiones  ·  Año gravable 2025', PW / 2, 14, { align: 'center' });
 
-  // Badge "220" a la derecha
-  rr(PAGE_W - MR - 22, 5, 22, 22, 3, C.accent);
-  doc.setTextColor(...C.white);
-  doc.setFont('helvetica', 'bold');
-  doc.setFontSize(18);
-  doc.text('220', PAGE_W - MR - 11, 20, { align: 'center' });
+  // caja TAT derecha
+  fc(...WHITE); doc.roundedRect(PW - MR - 28, 2.5, 28, 19, 2, 2, 'F');
+  try { doc.addImage(logoTatBase64, 'PNG', PW - MR - 26, 3.5, 24, 17); } catch(e) {
+    tc(...DIAN_DARK); fn('bold', 8); doc.text('TAT', PW - MR - 14, 13, { align: 'center' });
+  }
 
-  y = 42;
+  // badge 220
+  fc(...DIAN_DARK); doc.roundedRect(PW/2 - 9, 20, 18, 8, 1.5, 1.5, 'F');
+  tc(...WHITE); fn('bold', 11); doc.text('220', PW / 2, 26.5, { align: 'center' });
 
-  // ── 2. TÍTULO DOCUMENTO ───────────────────────────────────────────────────
-  doc.setTextColor(...C.text);
-  doc.setFont('helvetica', 'bold');
-  doc.setFontSize(13);
-  doc.text('Certificado de Ingresos y Retenciones', PAGE_W / 2, y + 7, { align: 'center' });
-  doc.setFont('helvetica', 'normal');
-  doc.setFontSize(9);
-  doc.setTextColor(...C.gray);
-  doc.text('por Rentas de Trabajo y de Pensiones  ·  Año Gravable 2025', PAGE_W / 2, y + 13, { align: 'center' });
+  y = 28;
 
-  y += 20;
+  // ══════════════════════════════════════════════════════════════════════════
+  // BANDA INSTRUCCIÓN  (28 → 33)
+  // ══════════════════════════════════════════════════════════════════════════
+  fc(255,255,215); dc(...BORDER); lw(0.15);
+  doc.rect(ML, y, CW, 5, 'FD');
+  tc(80,60,0); fn('normal', 5.5);
+  doc.text('Antes de diligenciar este formulario lea cuidadosamente las instrucciones', ML + 2, y + 3.5);
+  fn('bold', 5.5); doc.text('Digite número de cédula >>', ML + 112, y + 3.5);
+  tc(...TEXT); fn('bold', 6.5); doc.text(emp.id, PW - MR - 2, y + 3.5, { align: 'right' });
+  y += 5;
 
-  // ── 3. TARJETA EMPLEADO ───────────────────────────────────────────────────
-  rr(ML, y, CW, 22, 4, C.light, C.lightGray);
-  // borde izquierdo accent
-  rr(ML, y, 3, 22, 0, C.accent);
+  // ══════════════════════════════════════════════════════════════════════════
+  // RETENEDOR  (33 → 55)
+  // ══════════════════════════════════════════════════════════════════════════
+  fc(...BLUE); doc.roundedRect(ML, y, 17, 4.5, 1, 1, 'F');
+  tc(...WHITE); fn('bold', 5.5); doc.text('Retenedor', ML + 8.5, y + 3.2, { align: 'center' });
+  y += 5;
 
-  doc.setTextColor(...C.muted);
-  doc.setFont('helvetica', 'normal');
-  doc.setFontSize(7);
-  doc.text('EMPLEADO', ML + 8, y + 5);
-
-  const nombreCompleto = [emp.nombre1, emp.nombre2, emp.apellido1, emp.apellido2].filter(Boolean).join(' ');
-  doc.setTextColor(...C.primary);
-  doc.setFont('helvetica', 'bold');
-  doc.setFontSize(12);
-  doc.text(nombreCompleto, ML + 8, y + 12);
-
-  doc.setTextColor(...C.gray);
-  doc.setFont('helvetica', 'normal');
-  doc.setFontSize(8);
-  doc.text(`Cédula de ciudadanía:  ${emp.id}`, ML + 8, y + 18);
-
-  // Período (derecha de la tarjeta)
-  doc.setTextColor(...C.muted);
-  doc.setFontSize(7);
-  doc.text('PERÍODO CERTIFICADO', PAGE_W - MR - 50, y + 5);
-  doc.setTextColor(...C.text);
-  doc.setFont('helvetica', 'bold');
-  doc.setFontSize(8.5);
-  doc.text(`${emp.fechaInicial}  →  ${emp.fechaFinal}`, PAGE_W - MR - 50, y + 12);
-  doc.setFont('helvetica', 'normal');
-  doc.setFontSize(7.5);
-  doc.setTextColor(...C.gray);
-  doc.text('Expedición: 28/03/2026', PAGE_W - MR - 50, y + 18);
-
-  y += 28;
-
-  // ── 4. SECCIÓN INGRESOS ───────────────────────────────────────────────────
-  // Título sección
-  rr(ML, y, CW, 7, 2, C.primary);
-  doc.setTextColor(...C.white);
-  doc.setFont('helvetica', 'bold');
-  doc.setFontSize(8);
-  doc.text('CONCEPTO DE LOS INGRESOS', ML + 4, y + 5);
-  doc.text('VALOR', PAGE_W - MR - 4, y + 5, { align: 'right' });
-  y += 7;
-
-  const ingresos = [
-    { cas: '36', label: 'Pagos por salarios',                                          val: emp.c36 },
-    { cas: '37', label: 'Pagos con bonos electrónicos, cheques, tarjetas o vales',     val: emp.c37 },
-    { cas: '38', label: 'Exceso pagos por alimentación > 41 UVT (art. 387-1 E.T.)',   val: emp.c38 },
-    { cas: '39', label: 'Pagos por honorarios',                                        val: emp.c39 },
-    { cas: '40', label: 'Pagos por servicios',                                         val: emp.c40 },
-    { cas: '41', label: 'Pagos por comisiones',                                        val: emp.c41 },
-    { cas: '42', label: 'Pagos por prestaciones sociales',                             val: emp.c42 },
-    { cas: '43', label: 'Pagos por viáticos',                                          val: emp.c43 },
-    { cas: '44', label: 'Pagos por gastos de representación',                          val: emp.c44 },
-    { cas: '45', label: 'Pagos por compensación trabajo asociado cooperativo',         val: emp.c45 },
-    { cas: '46', label: 'Otros pagos',                                                 val: emp.c46 },
-    { cas: '47', label: 'Auxilio de cesantías e intereses efectivamente pagados',      val: emp.c47 },
-    { cas: '48', label: 'Cesantías régimen tradicional CST (Cap. VII, Tít. VIII)',     val: emp.c48 },
-    { cas: '49', label: 'Auxilio de cesantías consignadas al fondo',                   val: emp.c49 },
-    { cas: '50', label: 'Pensiones de jubilación, vejez o invalidez',                  val: emp.c50 },
-    { cas: '51', label: 'Apoyos económicos educativos no reembolsables',               val: emp.c51 },
+  // fila NIT/DV/apellidos/nombres
+  const rCols = [
+    { l:'5. NIT', v:'901.568.117', w:52 },
+    { l:'6. DV', v:'1', w:11 },
+    { l:'7. Primer Apellido', v:'', w:30 },
+    { l:'8. Segundo Apellido', v:'', w:28 },
+    { l:'9. Primer Nombre', v:'', w:28 },
+    { l:'10. Otros Nombres', v:'', w: CW-52-11-30-28-28 },
   ];
-
-  const ROW_H = 6;
-  ingresos.forEach((r, i) => {
-    const bg = i % 2 === 0 ? C.white : C.light;
-    rr(ML, y, CW, ROW_H, 0, bg);
-    // número casilla (badge pequeño)
-    rr(ML + 2, y + 1, 7, 4, 1, C.lightGray);
-    doc.setTextColor(...C.muted);
-    doc.setFont('helvetica', 'bold');
-    doc.setFontSize(5.5);
-    doc.text(r.cas, ML + 5.5, y + 4, { align: 'center' });
-    // label
-    doc.setTextColor(...C.text);
-    doc.setFont('helvetica', 'normal');
-    doc.setFontSize(7);
-    doc.text(r.label, ML + 11, y + 4.2);
-    // value
-    doc.setFont('helvetica', r.val ? 'bold' : 'normal');
-    doc.setTextColor(r.val ? C.primary[0] : C.muted[0], r.val ? C.primary[1] : C.muted[1], r.val ? C.primary[2] : C.muted[2]);
-    doc.setFontSize(7.5);
-    doc.text(fmtMoney(r.val), PAGE_W - MR - 2, y + 4.2, { align: 'right' });
-    y += ROW_H;
+  let cx = ML;
+  rCols.forEach(c => {
+    fc(...ROW_A); dc(...BORDER); lw(0.15); doc.rect(cx, y, c.w, 8, 'FD');
+    tc(...MUTED); fn('normal', 4); doc.text(c.l, cx + 1.2, y + 2.5);
+    tc(...TEXT); fn('bold', 6.5); doc.text(c.v, cx + c.w/2, y + 6.5, { align:'center' });
+    cx += c.w;
   });
-
-  // Total ingresos
-  const totalIng = ingresos.reduce((a, r) => a + (parseFloat(r.val) || 0), 0);
-  rr(ML, y, CW, 8, 0, C.primary);
-  doc.setTextColor(...C.white);
-  doc.setFont('helvetica', 'bold');
-  doc.setFontSize(8);
-  doc.text('52.  Total de Ingresos Brutos (Sume 36 a 51)', ML + 4, y + 5.5);
-  doc.text(fmtMoney(totalIng), PAGE_W - MR - 2, y + 5.5, { align: 'right' });
   y += 8;
 
+  // razón social
+  fc(...ROW_B); dc(...BORDER); lw(0.15); doc.rect(ML, y, CW, 6.5, 'FD');
+  tc(...MUTED); fn('normal', 4); doc.text('11. Razón Social', ML + 1.5, y + 2.5);
+  tc(...TEXT); fn('bold', 7.5); doc.text('TAT DISTRIBUCIONES DEL EJE CAFETERO S.A.S.', ML + CW/2, y + 5.5, { align:'center' });
+  y += 6.5;
+
+  y += 2;
+
+  // ══════════════════════════════════════════════════════════════════════════
+  // EMPLEADO  (y → y+22)
+  // ══════════════════════════════════════════════════════════════════════════
+  fc(...DIAN_GREEN); doc.roundedRect(ML, y, 17, 4.5, 1, 1, 'F');
+  tc(...WHITE); fn('bold', 5.5); doc.text('Empleado', ML + 8.5, y + 3.2, { align: 'center' });
   y += 5;
 
-  // ── 5. SECCIÓN APORTES ────────────────────────────────────────────────────
-  rr(ML, y, CW, 7, 2, C.accent);
-  doc.setTextColor(...C.white);
-  doc.setFont('helvetica', 'bold');
-  doc.setFontSize(8);
-  doc.text('CONCEPTO DE LOS APORTES', ML + 4, y + 5);
-  doc.text('VALOR', PAGE_W - MR - 4, y + 5, { align: 'right' });
-  y += 7;
-
-  const aportes = [
-    { cas: '53', label: 'Aportes obligatorios por salud a cargo del trabajador',                    val: emp.c53 },
-    { cas: '54', label: 'Aportes obligatorios a fondos de pensiones y solidaridad pensional',       val: emp.c54 },
-    { cas: '55', label: 'Cotizaciones voluntarias al RAIS',                                         val: emp.c55 },
-    { cas: '56', label: 'Aportes voluntarios a fondos de pensiones',                                val: emp.c56 },
-    { cas: '57', label: 'Aportes a cuentas AFC',                                                    val: emp.c57 },
-    { cas: '58', label: 'Aportes a cuentas AVC',                                                    val: emp.c58 },
-    { cas: '59', label: 'Ingreso laboral promedio últimos 6 meses (num. 4 art. 206 E.T.)',          val: emp.c59 },
+  const eCols = [
+    { l:'24. Cód.Tipo', v:'13', w:15 },
+    { l:'25. Número de documento', v:emp.id, w:46 },
+    { l:'26. Primer apellido', v:emp.apellido1, w:32 },
+    { l:'27. Segundo apellido', v:emp.apellido2, w:29 },
+    { l:'28. Primer Nombre', v:emp.nombre1, w:29 },
+    { l:'29. Otros Nombres', v:emp.nombre2||'', w: CW-15-46-32-29-29 },
   ];
+  cx = ML;
+  eCols.forEach(c => {
+    fc(...ROW_A); dc(...BORDER); lw(0.15); doc.rect(cx, y, c.w, 8, 'FD');
+    tc(...MUTED); fn('normal', 4); doc.text(c.l, cx + 1.2, y + 2.5);
+    tc(...TEXT); fn('bold', c.w < 20 ? 6 : 6.5);
+    doc.text(String(c.v), cx + c.w/2, y + 6.5, { align:'center' });
+    cx += c.w;
+  });
+  y += 8;
 
-  aportes.forEach((r, i) => {
-    const bg = i % 2 === 0 ? C.white : C.light;
-    rr(ML, y, CW, ROW_H, 0, bg);
-    rr(ML + 2, y + 1, 7, 4, 1, C.lightGray);
-    doc.setTextColor(...C.muted);
-    doc.setFont('helvetica', 'bold');
-    doc.setFontSize(5.5);
-    doc.text(r.cas, ML + 5.5, y + 4, { align: 'center' });
-    doc.setTextColor(...C.text);
-    doc.setFont('helvetica', 'normal');
-    doc.setFontSize(7);
-    doc.text(r.label, ML + 11, y + 4.2);
-    doc.setFont('helvetica', r.val ? 'bold' : 'normal');
-    doc.setTextColor(r.val ? C.accent[0] : C.muted[0], r.val ? C.accent[1] : C.muted[1], r.val ? C.accent[2] : C.muted[2]);
-    doc.setFontSize(7.5);
-    doc.text(fmtMoney(r.val), PAGE_W - MR - 2, y + 4.2, { align: 'right' });
-    y += ROW_H;
+  // fila período/fecha/lugar/dpto/municipio
+  const pCols = [{w:54},{w:37},{w:59},{w:16},{w:CW-54-37-59-16}];
+  cx = ML;
+  pCols.forEach((c, i) => {
+    fc(...(i%2===0 ? ROW_A : ROW_B)); dc(...BORDER); lw(0.15); doc.rect(cx, y, c.w, 8, 'FD');
+    cx += c.w;
+  });
+  tc(...MUTED); fn('normal', 4);
+  doc.text('Periodo de la Certificación', ML+1.5, y+2.5);
+  doc.text('30. de:', ML+1.5, y+5.5);
+  tc(...TEXT); fn('bold', 6); doc.text(emp.fechaInicial, ML+15, y+5.8);
+  tc(...MUTED); fn('normal', 4); doc.text('31. A:', ML+31, y+5.5);
+  tc(...TEXT); fn('bold', 6); doc.text(emp.fechaFinal, ML+40, y+5.8);
+  tc(...MUTED); fn('normal', 4); doc.text('32. Fecha Expedición', ML+55.5, y+2.5);
+  tc(...TEXT); fn('bold', 6.5); doc.text('28/03/2026', ML+54+18.5, y+6.2, { align:'center' });
+  tc(...MUTED); fn('normal', 4); doc.text('33. Lugar retención', ML+92.5, y+2.5);
+  tc(...TEXT); fn('bold', 6.5); doc.text('Dosquebradas', ML+92.5+29.5, y+6.2, { align:'center' });
+  tc(...MUTED); fn('normal', 4); doc.text('34. Dpto.', ML+152.5, y+2.5);
+  tc(...TEXT); fn('bold', 6.5); doc.text('66', ML+160, y+6.2, { align:'center' });
+  tc(...MUTED); fn('normal', 4); doc.text('35. Municipio', ML+169.5, y+2.5);
+  tc(...TEXT); fn('bold', 6.5); doc.text('001', ML+177, y+6.2, { align:'center' });
+  y += 8;
+
+  y += 2;
+
+  // ══════════════════════════════════════════════════════════════════════════
+  // TABLA INGRESOS  16 filas × 4.8 + header 5.5 + total 6 = ~99mm
+  // ══════════════════════════════════════════════════════════════════════════
+  fc(...BLUE); doc.roundedRect(ML, y, CW, 5.5, 1, 1, 'F');
+  tc(...WHITE); fn('bold', 6.5);
+  doc.text('Concepto de los Ingresos', ML+4, y+4);
+  doc.text('Valor', PW-MR-2, y+4, { align:'right' });
+  y += 5.5;
+
+  const RH = 4.8;
+  const iRows = [
+    { cas:'36', lbl:'Pagos por salarios', val:emp.c36 },
+    { cas:'37', lbl:'Pagos con bonos electrónicos, cheques, tarjetas o vales', val:emp.c37 },
+    { cas:'38', lbl:'Exceso pagos alimentación > 41 UVT (art. 387-1 E.T.)', val:emp.c38 },
+    { cas:'39', lbl:'Pagos por honorarios', val:emp.c39 },
+    { cas:'40', lbl:'Pagos por servicios', val:emp.c40 },
+    { cas:'41', lbl:'Pagos por comisiones', val:emp.c41 },
+    { cas:'42', lbl:'Pagos por prestaciones sociales', val:emp.c42 },
+    { cas:'43', lbl:'Pagos por viáticos', val:emp.c43 },
+    { cas:'44', lbl:'Pagos por gastos de representación', val:emp.c44 },
+    { cas:'45', lbl:'Pagos por compensación trabajo asociado cooperativo', val:emp.c45 },
+    { cas:'46', lbl:'Otros pagos', val:emp.c46 },
+    { cas:'47', lbl:'Auxilio de cesantías e intereses efectivamente pagados', val:emp.c47 },
+    { cas:'48', lbl:'Cesantías régimen tradicional CST (Cap.VII, Tít.VIII Parte Primera)', val:emp.c48 },
+    { cas:'49', lbl:'Auxilio de cesantías consignadas al fondo', val:emp.c49 },
+    { cas:'50', lbl:'Pensiones de jubilación, vejez o invalidez', val:emp.c50 },
+    { cas:'51', lbl:'Apoyos económicos educativos no reembolsables (recursos públicos)', val:emp.c51 },
+  ];
+  iRows.forEach((r,i) => {
+    drawRow(ML, y, CW, RH, i%2===0 ? ROW_A : ROW_B,
+      i%2===0 ? [210,225,245] : [195,215,240], r.cas, r.lbl, r.val, BLUE);
+    y += RH;
   });
 
-  y += 5;
-
-  // ── 6. CASILLA 60 — RETENCIÓN (bloque destacado) ─────────────────────────
-  rr(ML, y, CW, 13, 3, C.accent);
-  doc.setTextColor(...C.white);
-  doc.setFont('helvetica', 'bold');
-  doc.setFontSize(7.5);
-  doc.text('60.  Valor de la retención en la fuente por ingresos laborales y de pensiones', ML + 4, y + 5.5);
-  doc.setFontSize(12);
-  doc.text(fmtMoney(emp.c60), PAGE_W - MR - 4, y + 9.5, { align: 'right' });
-  y += 13;
-
+  // casilla 52 total
+  const tot = iRows.reduce((a,r)=>a+(parseFloat(r.val)||0),0);
+  fc(...BLUE); doc.rect(ML, y, CW, 6, 'F');
+  tc(...WHITE); fn('bold', 6.5);
+  doc.text('52.  Total de Ingresos Brutos (Sume 36 a 51)', ML+4, y+4.2);
+  fn('bold', 7); doc.text(money(tot), PW-MR-1.5, y+4.2, { align:'right' });
   y += 6;
 
-  // ── 7. DATOS AGENTE RETENEDOR ─────────────────────────────────────────────
-  rr(ML, y, CW, 14, 3, C.light, C.lightGray);
-  rr(ML, y, 3, 14, 0, C.primary);
-  doc.setTextColor(...C.muted);
-  doc.setFont('helvetica', 'normal');
-  doc.setFontSize(6.5);
-  doc.text('AGENTE RETENEDOR', ML + 7, y + 4);
-  doc.setTextColor(...C.primary);
-  doc.setFont('helvetica', 'bold');
-  doc.setFontSize(9);
-  doc.text('T.A.T. DISTRIBUCIONES DEL EJE CAFETERO S.A.S.', ML + 7, y + 10);
-  doc.setTextColor(...C.gray);
-  doc.setFont('helvetica', 'normal');
-  doc.setFontSize(7);
-  doc.text('NIT: 901.568.117-1  ·  Dosquebradas, Risaralda', PAGE_W - MR - 4, y + 10, { align: 'right' });
-  y += 14;
+  y += 2;
 
+  // ══════════════════════════════════════════════════════════════════════════
+  // TABLA APORTES  7 filas × 4.8 + header 5.5 = ~39mm
+  // ══════════════════════════════════════════════════════════════════════════
+  fc(...DIAN_GREEN); doc.roundedRect(ML, y, CW, 5.5, 1, 1, 'F');
+  tc(...WHITE); fn('bold', 6.5);
+  doc.text('Concepto de los Aportes', ML+4, y+4);
+  doc.text('Valor', PW-MR-2, y+4, { align:'right' });
+  y += 5.5;
+
+  const aRows = [
+    { cas:'53', lbl:'Aportes obligatorios por salud a cargo del trabajador', val:emp.c53 },
+    { cas:'54', lbl:'Aportes obligatorios a fondos de pensiones y solidaridad pensional', val:emp.c54 },
+    { cas:'55', lbl:'Cotizaciones voluntarias al RAIS', val:emp.c55 },
+    { cas:'56', lbl:'Aportes voluntarios a fondos de pensiones', val:emp.c56 },
+    { cas:'57', lbl:'Aportes a cuentas AFC', val:emp.c57 },
+    { cas:'58', lbl:'Aportes a cuentas AVC', val:emp.c58 },
+    { cas:'59', lbl:'Ingreso laboral promedio últimos 6 meses (num. 4 art. 206 E.T.)', val:emp.c59 },
+  ];
+  aRows.forEach((r,i) => {
+    drawRow(ML, y, CW, RH, i%2===0 ? ROW_GA : ROW_GB,
+      i%2===0 ? [210,240,220] : [195,230,210], r.cas, r.lbl, r.val, DIAN_GREEN);
+    y += RH;
+  });
+
+  // casilla 60
+  y += 1.5;
+  fc(...DIAN_GREEN); doc.roundedRect(ML, y, CW, 9, 2, 2, 'F');
+  fc(...GOLD); doc.roundedRect(ML, y+7, CW, 2, 0, 0, 'F');
+  tc(...WHITE); fn('bold', 7);
+  doc.text('60.  Valor de la retención en la fuente por ingresos laborales y de pensiones', ML+4, y+5);
+  fn('bold', 9); doc.text(money(emp.c60), PW-MR-2, y+7, { align:'right' });
+  y += 11;
+
+  // nombre pagador
+  fc(...ROW_B); dc(...BORDER); lw(0.15); doc.rect(ML, y, CW, 6, 'FD');
+  tc(...MUTED); fn('normal', 4); doc.text('Nombre del pagador o agente retenedor', ML+2, y+2.5);
+  tc(...TEXT); fn('bold', 7); doc.text('TAT DISTRIBUCIONES DEL EJE CAFETERO S.A.S.', ML+CW/2, y+5.2, { align:'center' });
   y += 6;
 
-  // ── 8. NOTA LEGAL ─────────────────────────────────────────────────────────
-  rr(ML, y, CW, 28, 3, [250, 250, 235], [220, 220, 180]);
-  doc.setTextColor(90, 80, 0);
-  doc.setFont('helvetica', 'bold');
-  doc.setFontSize(6.5);
-  doc.text('Certifico que durante el año gravable de 2025:', ML + 4, y + 5);
-  doc.setFont('helvetica', 'normal');
-  doc.setFontSize(6);
-  const notas = [
+  y += 2;
+
+  // ══════════════════════════════════════════════════════════════════════════
+  // NOTA LEGAL compacta
+  // ══════════════════════════════════════════════════════════════════════════
+  fc(255,253,228); dc(200,190,120); lw(0.25); doc.roundedRect(ML, y, CW, 21, 2, 2, 'FD');
+  fc(...GOLD); doc.rect(ML, y, 2.5, 21, 'F');
+  tc(75,55,0); fn('bold', 6);
+  doc.text('Certifico que durante el año gravable de 2025:', ML+5, y+4.5);
+  fn('normal', 5.5);
+  const ns = [
     '1. Mi patrimonio bruto excedió de 4.500 UVT ($224.095.000).',
     '2. Mis ingresos brutos fueron Inferiores a 1.400 UVT ($569.719.000).',
-    '3. No fui responsable del impuesto sobre las ventas a 31 de diciembre de 2025.',
-    '4. Mis consumos mediante tarjeta de crédito no excedieron 1.400 UVT ($569.719.000).',
-    '5. Que el total de mis compras y consumos no superaron 1.400 UVT ($569.719.000).',
+    '3. No fui responsable del IVA a 31 de diciembre de 2025.',
+    '4. Mis consumos con tarjeta de crédito no excedieron 1.400 UVT ($569.719.000).',
+    '5. Mis compras y consumos no superaron 1.400 UVT ($569.719.000).',
+    '6. Mis consignaciones, depósitos e inversiones no excedieron 1.400 UVT ($569.719.000).',
   ];
-  notas.forEach((n, i) => { doc.text(n, ML + 4, y + 10 + i * 4); });
-  y += 28;
+  ns.forEach((n,i) => doc.text(n, ML+5, y+8.5+i*2.8));
+  y += 21;
 
-  y += 3;
+  y += 1.5;
 
-  // NOTA DIAN
-  rr(ML, y, CW, 12, 3, [245, 245, 245], C.lightGray);
-  doc.setTextColor(...C.muted);
-  doc.setFont('helvetica', 'italic');
-  doc.setFontSize(5.8);
-  const dianNota = 'NOTA: Este certificado sustituye para todos los efectos legales la declaración de Renta y Complementario para el trabajador y pensionado que cumpla con lo establecido en el artículo 1.6.1.13.2.7 del Decreto 1625 de 2016. No necesita firma autógrafa.';
-  const dianLines = doc.splitTextToSize(dianNota, CW - 6);
-  dianLines.forEach((ln, i) => doc.text(ln, ML + 3, y + 4 + i * 3.5));
-  y += 12;
+  // nota DIAN
+  fc(246,246,246); dc(...BORDER); lw(0.15); doc.roundedRect(ML, y, CW, 9, 1.5, 1.5, 'FD');
+  tc(...MUTED); fn('italic', 5.2);
+  const dn = 'NOTA: Este certificado sustituye la declaración de Renta y Complementario para quienes cumplan el art. 1.6.1.13.2.7 del D. 1625/2016. No necesita firma autógrafa (Art. 10 D.R. 836/91).';
+  const dl = doc.splitTextToSize(dn, CW-5);
+  dl.forEach((l,i) => doc.text(l, ML+2.5, y+3.5+i*3));
+  y += 9;
 
-  y += 6;
+  // ── Firma del trabajador (abajo a la derecha) ─────────────────────────────
+  const FIRMA_W = 80;
+  const FIRMA_H = 12;
+  const FIRMA_X = PW - MR - FIRMA_W;
+  fc(...ROW_A); dc(...BORDER); lw(0.15);
+  doc.rect(FIRMA_X, y, FIRMA_W, FIRMA_H, 'FD');
+  tc(...MUTED); fn('normal', 5);
+  doc.text('Firma del trabajador o pensionado', FIRMA_X + 3, y + 3.5);
+  // línea de firma
+  dc(180, 180, 180); lw(0.3);
+  doc.line(FIRMA_X + 6, y + FIRMA_H - 3, FIRMA_X + FIRMA_W - 6, y + FIRMA_H - 3);
+  y += FIRMA_H;
 
-  // ── 9. FOOTER ─────────────────────────────────────────────────────────────
-  rr(0, PAGE_H - 16, PAGE_W, 16, 0, C.primary);
-  rr(0, PAGE_H - 16, PAGE_W, 3, 0, C.accent);
-  doc.setTextColor(...C.white);
-  doc.setFont('helvetica', 'normal');
-  doc.setFontSize(6.5);
-  doc.text('Portal Tributario TAT  ·  Generado el ' + new Date().toLocaleDateString('es-CO', { day: '2-digit', month: 'long', year: 'numeric' }), ML, PAGE_H - 7);
-  doc.text('Documento generado electrónicamente  ·  No requiere firma autógrafa', PAGE_W - MR, PAGE_H - 7, { align: 'right' });
+  y += 1;
+
+  // ══════════════════════════════════════════════════════════════════════════
+  // FOOTER fijo al fondo
+  // ══════════════════════════════════════════════════════════════════════════
+  fc(...GOLD); doc.rect(0, PH-13, PW, 2, 'F');
+  fc(...DIAN_DARK); doc.rect(0, PH-11, PW, 11, 'F');
+  tc(...WHITE); fn('bold', 6.5);
+  doc.text('Portal Tributario  ·  TAT Distribuciones del Eje Cafetero S.A.S.', ML, PH-5);
+  fn('normal', 6);
+  const ed = new Date().toLocaleDateString('es-CO',{day:'2-digit',month:'long',year:'numeric'});
+  doc.text('Expedido el '+ed+'  ·  Documento electrónico, no requiere firma autógrafa', PW-MR, PH-5, { align:'right' });
 
   doc.save(`Formulario220_TAT_${emp.id}_2025.pdf`);
 };
